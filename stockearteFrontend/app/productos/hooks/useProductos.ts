@@ -124,20 +124,20 @@ export const useProductos = ({ empresaId, onError }: UseProductosProps = {}) => 
 
   // Actualizar producto con estado optimista
   const actualizarProductoOptimista = useCallback(async (productoId: number, productoData: UpdateProductoDto) => {
+    // Filtrar variantes y componentes antes de enviar al backend
+    const { variantes, componentes, ...soloCamposEditables } = productoData as any;
     // Actualizar inmediatamente el estado local
     setProductos(prev => 
-      prev.map(p => p.id === productoId ? { ...p, ...productoData } : p)
+      prev.map(p => p.id === productoId ? { ...p, ...soloCamposEditables } : p)
     );
 
     try {
       // Llamar al backend
-      const productoActualizado = await productoService.update(productoId, productoData);
-      
+      const productoActualizado = await productoService.update(productoId, soloCamposEditables);
       // Reemplazar con la respuesta real del backend
       setProductos(prev => 
         prev.map(p => p.id === productoId ? productoActualizado : p)
       );
-      
       await cargarProductos();
       return { success: true, message: 'Producto actualizado exitosamente', producto: productoActualizado };
     } catch (error: any) {

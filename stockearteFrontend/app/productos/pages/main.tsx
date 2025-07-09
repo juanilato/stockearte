@@ -14,8 +14,7 @@ import {
 // Importar los nuevos hooks y tipos del backend
 import { 
   useProductos, 
-  useProductoActions, 
-  useProductoUtils, 
+  useProductoActions,  
   ToastType 
 } from '../hooks';
 import { Producto, VarianteProducto } from '../../../services/api';
@@ -26,7 +25,7 @@ import { commonStyles } from '../../styles/theme';
 import ModalConfirmacion from '@/components/ModalConfirmacion';
 
 import CustomToast from '../../../components/CustomToast';
-import MenuOpciones from '../components/MenuOpciones';
+
 import ModalBarCode from '../components/ModalBarCode';
 import ModalComponentes from '../components/ModalComponentes';
 import ModalProducto from '../components/ModalProducto';
@@ -37,7 +36,7 @@ import ProductosHeader from '../components/ProductosHeader';
 import BarcodeSVG from '../components/BarcodeSVG';
 
 // Importar funciones separadas
-import ModalGestionProductos from '@/app/components/ModalGestionProductos';
+import ModalGestionProductos from '../components/ModalGestionProductos';
 import AIFloatingButton from '@/components/AIFloatingButton';
 import { interpretarArchivo } from '../../../config/backend';
 
@@ -52,11 +51,11 @@ export default function ProductosView() {
   const [modalProductoVisible, setModalProductoVisible] = useState(false); // Modal Para crear/editar producto
   const [modalVariantesVisible, setModalVariantesVisible] = useState(false); // Modal para gestionar variantes de producto
   const [modalBarcodeVisible, setModalBarcodeVisible] = useState(false); // Modal para mostrar código de barras
-  const [barcodeData, setBarcodeData] = useState(''); // Datos del código de barras a mostrar en el modal
+  const [barcodeData] = useState(''); // Datos del código de barras a mostrar en el modal
   const [modalComponentesVisible, setModalComponentesVisible] = useState(false); // Modal para gestionar componentes de producto
-  const [menuVisible, setMenuVisible] = useState(false); 
+  const [menuVisible] = useState(false); 
   
-  const [varianteSeleccionada, setVarianteSeleccionada] = useState<VarianteProducto | null>(null); // Variante seleccionada para generar código de barras
+  const [varianteSeleccionada] = useState<VarianteProducto | null>(null); // Variante seleccionada para generar código de barras
   const [productoAEliminar, setProductoAEliminar] = useState<Producto | null>(null);  // setter de producto a eliminar
   const [scannerVisible, setScannerVisible] = useState(false); // Scanner visible para escanear códigos de barras
   const [toast, setToast] = useState<ToastType | null>(null); // Toast para mostrar mensajes de éxito o error
@@ -115,9 +114,6 @@ export default function ProductosView() {
     empresaId: selectedEmpresa?.id 
   });
 
-  const { 
-    generarCodigoBarrasPayload,  // Función para generar el payload del código de barras
-  } = useProductoUtils();
 
   // Inicialización
   useEffect(() => {
@@ -131,29 +127,7 @@ export default function ProductosView() {
   }, [selectedEmpresa, fadeAnim]);
 
   
-  // Generador para mostrar en imagen el codigo de barras correspondiente para el modal
-const generarCodigoBarras = (
-  producto?: Producto, 
-  variante?: VarianteProducto
-) => {
-  const safeProducto: Producto = producto ?? {
-    id: -1,
-    nombre: 'Producto Desconocido',
-    precioCosto: 0,
-    precioVenta: 0,
-    stock: 0,
-    componentes: [],
-    variantes: [],
-  };
 
-
-  // Genera el payload, lo selecciona como producto, si tiene variante la selecciona, y muestra el modal de barcode visible
-  const payload = generarCodigoBarrasPayload(safeProducto, variante);
-  setProductoSeleccionado(safeProducto);
-  setVarianteSeleccionada(variante || null);
-  setBarcodeData(JSON.stringify(payload));
-  setModalBarcodeVisible(true);
-};
   // Manejo de guardado de producto, recibe data y si es nuevo o no
   // Si es nuevo, se crea un nuevo producto, si no, se edita el existente
   // Luego cierra el modal de producto
@@ -405,6 +379,7 @@ const generarCodigoBarras = (
         {/* Modal para gestionar precios de productos varios a la vez*/}
         <ModalGestionProductos
           visible={productoPriceVisible}
+          productosPrecargados={productos}
           onClose={() => setProductoPriceVisible(false)}
         />
         {/* Modal para gestionar productos precargados desde archivo */}
@@ -506,25 +481,7 @@ const generarCodigoBarras = (
             onActualizar={cargarProductos}
           />
         )}
-        {/* Menú de opciones para el producto seleccionado */}
-        <MenuOpciones
-          visible={menuVisible}
-          producto={productoSeleccionado}
-          onClose={() => setMenuVisible(false)}
-          onGenerarQR={generarCodigoBarras}
-          onEditarProducto={(p) => {
-            setProductoSeleccionado(p);
-            setModalProductoVisible(true);
-          }}
-          onManejarComponentes={(p) => {
-            setProductoSeleccionado(p);
-            setModalComponentesVisible(true);
-          }}
-          onManejarVariantes={(p) => {
-            setProductoSeleccionado(p);
-            setModalVariantesVisible(true);
-          }}
-        />
+
 
         {/* Toast de resultado arriba */}
         {uploadResult && (
