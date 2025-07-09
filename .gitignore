@@ -1,0 +1,24 @@
+# Ignorar todas las carpetas node_modules en cualquier subdirectorio
+node_modules/
+**/node_modules/
+
+# Ignorar dependencias de Python (por si acaso)
+__pycache__/
+*.pyc
+
+# Ignorar archivos de logs
+*.log
+
+# Ignorar carpetas de build temporales
+/dist/
+/build/
+/.expo/
+/.next/
+
+# Ignorar archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de entorno
+.env
+.env.* 

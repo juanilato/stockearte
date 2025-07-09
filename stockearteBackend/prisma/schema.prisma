@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Usuario {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  password     String
+  apikeys      String[]
+  empresa      Empresa[] @relation("UsuarioEmpresa") 
+  estadoPago   EstadoPago?
+}
+
+model Empresa {
+  id            Int       @id @default(autoincrement())
+  descripcion   String
+  nombreEmpresa String
+  productos     Producto[]
+  materiales    Material[]
+  ventas        Venta[]
+  usuario       Usuario   @relation("UsuarioEmpresa", fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId     Int       
+}
+
+model EstadoPago {
+  id        Int      @id @default(autoincrement())
+  fecha     DateTime
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId Int      @unique
+}
+
+model Producto {
+  id           Int                 @id @default(autoincrement())
+  nombre       String
+  precioCosto  Float
+  precioVenta  Float
+  stock        Int
+  codigoBarras String?
+  empresa      Empresa?            @relation(fields: [empresaId], references: [id])
+  empresaId    Int?
+  componentes  ComponenteProducto[]
+  variantes    VarianteProducto[]
+  ventas       VentaProducto[]
+}
+
+model Material {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  precioCosto Float
+  unidad      String
+  stock       Int
+  empresa     Empresa? @relation(fields: [empresaId], references: [id])
+  empresaId   Int?
+  componentes ComponenteProducto[]
+}
+
+model ComponenteProducto {
+  id         Int      @id @default(autoincrement())
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  productoId Int
+  material   Material @relation(fields: [materialId], references: [id])
+  materialId Int
+  cantidad   Float
+}
+
+model VarianteProducto {
+  id           Int      @id @default(autoincrement())
+  producto     Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  productoId   Int
+  nombre       String
+  stock        Int
+  codigoBarras String?
+  ventas       VentaProducto[]
+}
+
+model Venta {
+  id            Int                @id @default(autoincrement())
+  fecha         DateTime
+  totalProductos Int
+  precioTotal   Float
+  ganancia      Float
+  productos     VentaProducto[]
+  empresa       Empresa?           @relation(fields: [empresaId], references: [id])
+  empresaId     Int?
+}
+
+model VentaProducto {
+  id          Int      @id @default(autoincrement())
+  venta       Venta    @relation(fields: [ventaId], references: [id])
+  ventaId     Int
+  producto    Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  productoId  Int
+  cantidad    Int
+  precioUnitario Float
+  ganancia    Float
+  variante    VarianteProducto? @relation(fields: [varianteId], references: [id])
+  varianteId  Int?
+} 
