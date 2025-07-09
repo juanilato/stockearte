@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   Alert,
   ActivityIndicator,
   Dimensions,
+  Animated,
+  ScrollView,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { empresaService, Empresa } from '../../services/api';
@@ -27,6 +29,11 @@ export default function EmpresaSelector({ userId }: EmpresaSelectorProps) {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [empresaToEdit, setEmpresaToEdit] = useState<Empresa | null>(null);
+  
+  // Animaciones
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const dropdownAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     loadEmpresas();
@@ -85,15 +92,64 @@ export default function EmpresaSelector({ userId }: EmpresaSelectorProps) {
     setSelectedEmpresa(empresa);
   };
 
+  const toggleDropdown = () => {
+    const newVisible = !dropdownVisible;
+    setDropdownVisible(newVisible);
+    
+    if (newVisible) {
+      Animated.parallel([
+        Animated.timing(dropdownAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(dropdownAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotateAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  };
+
+  const handlePress = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    toggleDropdown();
+  };
+
   return (
     <View>
       <TouchableOpacity
         style={styles.selector}
-        onPress={() => setDropdownVisible(!dropdownVisible)}
+        onPress={toggleDropdown}
         activeOpacity={0.8}
       >
         {loading ? (
-          <ActivityIndicator color="#3b82f6" />
+          <ActivityIndicator color="#6366f1" />
         ) : (
           <>
             <Text style={styles.selectorText}>
@@ -101,8 +157,8 @@ export default function EmpresaSelector({ userId }: EmpresaSelectorProps) {
             </Text>
             <MaterialCommunityIcons
               name={dropdownVisible ? 'chevron-up' : 'chevron-down'}
-              size={22}
-              color="#3b82f6"
+              size={18}
+              color="#6366f1"
             />
           </>
         )}
@@ -111,14 +167,19 @@ export default function EmpresaSelector({ userId }: EmpresaSelectorProps) {
       <Portal>
         {dropdownVisible && (
           <View style={styles.dropdown}>
-            {empresas.map(empresa => (
-              <View key={empresa.id} style={styles.dropdownItem}>
+            <ScrollView style={styles.dropdownScroll} showsVerticalScrollIndicator={false}>
+              {empresas.map(empresa => (
                 <TouchableOpacity
-                  style={styles.dropdownTouchable}
+                  key={empresa.id}
+                  style={[
+                    styles.empresaItem,
+                    selectedEmpresa?.id === empresa.id && styles.selectedEmpresa
+                  ]}
                   onPress={() => {
                     setSelectedEmpresa(empresa);
                     setDropdownVisible(false);
                   }}
+                  activeOpacity={0.8}
                 >
                   <Text
                     style={[
@@ -128,26 +189,22 @@ export default function EmpresaSelector({ userId }: EmpresaSelectorProps) {
                   >
                     {empresa.nombreEmpresa}
                   </Text>
+                  
                   {selectedEmpresa?.id === empresa.id && (
-                    <MaterialCommunityIcons name="check" size={18} color="#3b82f6" />
+                    <MaterialCommunityIcons name="check" size={18} color="#6366f1" />
                   )}
                 </TouchableOpacity>
+              ))}
 
-                <View style={styles.actions}>
-                  <TouchableOpacity onPress={() => handleCreateOrEdit(empresa)}>
-                    <MaterialCommunityIcons name="pencil" size={18} color="#64748b" />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleDelete(empresa)}>
-                    <MaterialCommunityIcons name="delete" size={18} color="#ef4444" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-
-            <TouchableOpacity style={styles.newButton} onPress={() => handleCreateOrEdit()}>
-              <MaterialCommunityIcons name="plus" size={18} color="#3b82f6" />
-              <Text style={styles.newText}>Nueva Empresa</Text>
-            </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.newEmpresaButton} 
+                onPress={() => handleCreateOrEdit()}
+                activeOpacity={0.8}
+              >
+                <MaterialCommunityIcons name="plus" size={18} color="#6366f1" />
+                <Text style={styles.newEmpresaText}>Nueva Empresa</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         )}
       </Portal>
@@ -168,74 +225,69 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#3b82f6',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
   },
   selectorText: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#1e293b',
+    fontWeight: '500',
   },
   dropdown: {
     position: 'absolute',
     top: 180,
     left: 20,
     right: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
-    borderWidth: 2,
-    borderColor: 'grey',
-    padding: 12,
-    zIndex: 9999,
-    elevation: 10,
-    maxHeight: 400,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    maxHeight: 300,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  dropdownItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomColor: '#e5e7eb',
-    borderBottomWidth: 1,
+  dropdownScroll: {
+    padding: 8,
   },
-  dropdownTouchable: {
-    flex: 1,
+  empresaItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  selectedEmpresa: {
+    backgroundColor: '#f1f5f9',
   },
   empresaName: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#1e293b',
   },
   selectedText: {
-    color: '#3b82f6',
-    fontWeight: 'bold',
+    color: '#6366f1',
+    fontWeight: '600',
   },
-  actions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginLeft: 12,
-  },
-  newButton: {
+  newEmpresaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
-    justifyContent: 'center',
-    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+    marginTop: 8,
   },
-  newText: {
-    color: '#3b82f6',
-    fontWeight: '600',
+  newEmpresaText: {
+    color: '#6366f1',
+    fontWeight: '500',
     fontSize: 16,
+    marginLeft: 8,
   },
 });

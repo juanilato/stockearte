@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
 import { Material, actualizarMaterial, obtenerEstadisticas, obtenerMateriales, setupProductosDB } from '../../services/db';
 import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../../context/AuthContext';
@@ -20,7 +20,14 @@ interface Usuario {
 }
 
 export default function InicioView() {
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const welcomeSlideAnim = useRef(new Animated.Value(-50)).current;
+  const metricsSlideAnim = useRef(new Animated.Value(50)).current;
+  const actionsSlideAnim = useRef(new Animated.Value(-30)).current;
+  const statsSlideAnim = useRef(new Animated.Value(30)).current;
+  const activitySlideAnim = useRef(new Animated.Value(-40)).current;
+  
   const [isLoading, setIsLoading] = useState(true);
   const [estadisticas, setEstadisticas] = useState<any>(null);
   const { user, logout } = useAuth();
@@ -58,11 +65,49 @@ export default function InicioView() {
 
     cargarDatos();
 
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
+    // Animaciones iniciales
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(welcomeSlideAnim, {
+        toValue: 0,
+        duration: 600,
+        delay: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(metricsSlideAnim, {
+        toValue: 0,
+        duration: 600,
+        delay: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(actionsSlideAnim, {
+        toValue: 0,
+        duration: 600,
+        delay: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(statsSlideAnim, {
+        toValue: 0,
+        duration: 600,
+        delay: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(activitySlideAnim, {
+        toValue: 0,
+        duration: 600,
+        delay: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, []);
 
   const handleEmpresaChange = (empresa: Empresa) => {
@@ -71,18 +116,6 @@ export default function InicioView() {
     console.log('Empresa seleccionada:', empresa);
   };
 
-  // Debug: Verificar que el usuario tenga ID válido
-  useEffect(() => {
-    if (user) {
-      console.log('=== InicioView Debug ===');
-      console.log('Usuario actual:', user);
-      console.log('ID del usuario:', user.id);
-      console.log('Tipo de ID:', typeof user.id);
-    } else {
-      console.log('=== InicioView Debug ===');
-      console.log('No hay usuario autenticado');
-    }
-  }, [user]);
 
 
 
@@ -129,47 +162,191 @@ export default function InicioView() {
       />
 
       {/* Contenido principal */}
-      <ScrollView contentContainerStyle={styles.mainContent}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.mainContent}
+        showsVerticalScrollIndicator={false}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: slideAnim } } }],
+          { useNativeDriver: false }
+        )}
+        scrollEventThrottle={16}
+      >
+        {/* Welcome Section */}
+        <Animated.View 
+          style={[
+            styles.welcomeSection,
+            {
+              transform: [{ translateX: welcomeSlideAnim }],
+              opacity: fadeAnim,
+            }
+          ]}
+        >
+          <View style={styles.welcomeContent}>
+            <Text style={styles.welcomeTitle}>¡Bienvenido de vuelta!</Text>
+            <Text style={styles.welcomeSubtitle}>
+              {user?.email ? `Hola, ${user.email.split('@')[0]}` : 'Hola, Usuario'}
+            </Text>
+          </View>
+          <View style={styles.welcomeIcon}>
+            <MaterialCommunityIcons name="hand-wave" size={32} color="#6366f1" />
+          </View>
+        </Animated.View>
+
+        {/* Métricas destacadas */}
         {estadisticas && (
-          <MetricasHoy 
-            gananciaHoy={estadisticas.gananciaHoy || 0} 
-            ventasHoy={estadisticas.ventasHoy || 0} 
-          />
+          <Animated.View 
+            style={[
+              styles.metricsSection,
+              {
+                transform: [{ translateX: metricsSlideAnim }],
+                opacity: fadeAnim,
+              }
+            ]}
+          >
+            <MetricasHoy 
+              gananciaHoy={estadisticas.gananciaHoy || 0} 
+              ventasHoy={estadisticas.ventasHoy || 0} 
+            />
+          </Animated.View>
         )}
 
         {/* Acciones Rápidas */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
+        <Animated.View 
+          style={[
+            styles.section,
+            {
+              transform: [{ translateX: actionsSlideAnim }],
+              opacity: fadeAnim,
+            }
+          ]}
+        >
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
+            <Text style={styles.sectionSubtitle}>Accede a las funciones principales</Text>
+          </View>
+          
           <View style={styles.accionesGrid}>
-            <TouchableOpacity style={styles.accionCard} onPress={handleNuevaVenta}>
-              <MaterialCommunityIcons name="plus-circle-outline" size={28} color="#3b82f6" />
-              <Text style={styles.accionLabel}>Nueva Venta</Text>
+            <TouchableOpacity 
+              style={[styles.accionCard]} 
+              onPress={handleNuevaVenta}
+              activeOpacity={0.8}
+            >
+              <View style={styles.actionIconContainer}>
+                <MaterialCommunityIcons name="plus-circle" size={24} color="#ffffff" />
+              </View>
+              <Text style={[styles.accionLabel ]}>Nueva Venta</Text>
+              <Text style={[styles.actionSubtitle]}>Registrar venta</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.accionCard} onPress={() => setModalEstadisticasVisible(true)}>
-              <MaterialCommunityIcons name="chart-bar" size={28} color="#8b5cf6" />
+            
+            <TouchableOpacity 
+              style={styles.accionCard} 
+              onPress={() => setModalEstadisticasVisible(true)}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionIconContainer, styles.purpleBg]}>
+                <MaterialCommunityIcons name="chart-line" size={24} color="#ffffff" />
+              </View>
               <Text style={styles.accionLabel}>Estadísticas</Text>
+              <Text style={styles.actionSubtitle}>Ver métricas</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.accionCard} onPress={() => setModalProductosVisible(true)}>
-              <MaterialCommunityIcons name="package-variant-closed" size={28} color="#10b981" />
+            
+            <TouchableOpacity 
+              style={styles.accionCard} 
+              onPress={() => setModalProductosVisible(true)}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionIconContainer, styles.greenBg]}>
+                <MaterialCommunityIcons name="package-variant" size={24} color="#ffffff" />
+              </View>
               <Text style={styles.accionLabel}>Productos</Text>
+              <Text style={styles.actionSubtitle}>Gestionar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.accionCard} onPress={() => setModalMaterialesVisible(true)}>
-              <MaterialCommunityIcons name="basket-outline" size={28} color="#f59e0b" />
+            
+            <TouchableOpacity 
+              style={styles.accionCard} 
+              onPress={() => setModalMaterialesVisible(true)}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionIconContainer, styles.orangeBg]}>
+                <MaterialCommunityIcons name="basket" size={24} color="#ffffff" />
+              </View>
               <Text style={styles.accionLabel}>Materiales</Text>
+              <Text style={styles.actionSubtitle}>Gestionar</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
 
-        {/* Últimos Movimientos */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Últimos Movimientos</Text>
-          <View style={styles.emptyMovimientos}>
-            <Text style={styles.emptyMovimientosText}>Aún no hay movimientos recientes.</Text>
+        {/* Quick Stats */}
+        <Animated.View 
+          style={[
+            styles.section,
+            {
+              transform: [{ translateX: statsSlideAnim }],
+              opacity: fadeAnim,
+            }
+          ]}
+        >
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Resumen Rápido</Text>
+            <Text style={styles.sectionSubtitle}>Vista general de tu negocio</Text>
           </View>
-        </View>
+          
+          <View style={styles.statsGrid}>
+            <View style={[styles.statCard, styles.statCardGreen]}>
+              <MaterialCommunityIcons name="trending-up" size={20} color="#10b981" />
+              <Text style={styles.statValue}>$0</Text>
+              <Text style={styles.statLabel}>Ventas Hoy</Text>
+            </View>
+            
+            <View style={[styles.statCard, styles.statCardBlue]}>
+              <MaterialCommunityIcons name="package-variant-closed" size={20} color="#3b82f6" />
+              <Text style={styles.statValue}>0</Text>
+              <Text style={styles.statLabel}>Productos</Text>
+            </View>
+            
+            <View style={[styles.statCard, styles.statCardOrange]}>
+              <MaterialCommunityIcons name="basket-outline" size={20} color="#f59e0b" />
+              <Text style={styles.statValue}>0</Text>
+              <Text style={styles.statLabel}>Materiales</Text>
+            </View>
+            
+            <View style={[styles.statCard, styles.statCardPurple]}>
+              <MaterialCommunityIcons name="chart-bar" size={20} color="#8b5cf6" />
+              <Text style={styles.statValue}>0</Text>
+              <Text style={styles.statLabel}>Reportes</Text>
+            </View>
+          </View>
+        </Animated.View>
+
+        {/* Recent Activity */}
+        <Animated.View 
+          style={[
+            styles.section,
+            {
+              transform: [{ translateX: activitySlideAnim }],
+              opacity: fadeAnim,
+            }
+          ]}
+        >
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Actividad Reciente</Text>
+            <Text style={styles.sectionSubtitle}>Últimas acciones realizadas</Text>
+          </View>
+          
+          <View style={styles.activityContainer}>
+            <View style={styles.emptyActivity}>
+              <MaterialCommunityIcons name="clock-outline" size={48} color="#94a3b8" />
+              <Text style={styles.emptyActivityTitle}>Sin actividad reciente</Text>
+              <Text style={styles.emptyActivitySubtitle}>
+                Realiza tu primera venta para ver la actividad aquí
+              </Text>
+            </View>
+          </View>
+        </Animated.View>
       </ScrollView>
 
-
+      {/* Modals */}
       <ModalEstadisticasDestacadas
         visible={modalEstadisticasVisible}
         onClose={() => setModalEstadisticasVisible(false)}
@@ -184,7 +361,6 @@ export default function InicioView() {
         materiales={materiales}
         onGuardar={handleGuardarPrecios}
       />
-
     </Animated.View>
   );
 }
@@ -194,57 +370,243 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8fafc',
   },
-
+  scrollView: {
+    flex: 1,
+  },
   mainContent: {
     paddingBottom: 24,
   },
+  
+  // Welcome Section
+  welcomeSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#ffffff',
+    marginHorizontal: 20,
+    marginTop: 20,
+    padding: 24,
+    borderRadius: 24,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+  },
+  welcomeContent: {
+    flex: 1,
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 4,
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: '#64748b',
+    fontWeight: '500',
+  },
+  welcomeIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#f8fafc',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+  },
+  
+  // Metrics Section
+  metricsSection: {
+    marginTop: 20,
+    marginHorizontal: 20,
+  },
+  
+  // Sections
   section: {
     marginTop: 24,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#334155',
+  sectionHeader: {
     paddingHorizontal: 20,
     marginBottom: 16,
   },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '500',
+  },
+  
+  // Actions Grid
   accionesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
+    gap: 12,
   },
   accionCard: {
     width: '48%',
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
+    padding: 24,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    transform: [{ scale: 1 }],
+  },
+  primaryAction: {
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+    shadowColor: '#3b82f6',
+    shadowOpacity: 0.2,
+  },
+  actionIconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#3b82f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  purpleBg: {
+    backgroundColor: '#8b5cf6',
+  },
+  greenBg: {
+    backgroundColor: '#10b981',
+  },
+  orangeBg: {
+    backgroundColor: '#f59e0b',
+  },
+  accionLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  actionSubtitle: {
+    fontSize: 12,
+    color: '#64748b',
+    textAlign: 'center',
+  },
+
+  primaryActionSubtext: {
+    color: '#e0e7ff',
+  },
+  
+  // Stats Grid
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  statCard: {
+    width: '48%',
+    backgroundColor: '#ffffff',
     padding: 20,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#f1f5f9',
+    position: 'relative',
+    overflow: 'hidden',
   },
-  accionLabel: {
-    marginTop: 12,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#334155',
+  statValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginTop: 8,
+    marginBottom: 4,
   },
-  movimientosContainer: {},
-  emptyMovimientos: {
-    marginHorizontal: 20,
-    backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  emptyMovimientosText: {
-    fontSize: 14,
+  statLabel: {
+    fontSize: 12,
     color: '#64748b',
+    fontWeight: '500',
+    textAlign: 'center',
   },
+  statCardGreen: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#10b981',
+  },
+  statCardBlue: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#3b82f6',
+  },
+  statCardOrange: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#f59e0b',
+  },
+  statCardPurple: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#8b5cf6',
+  },
+  
+  // Activity Section
+  activityContainer: {
+    paddingHorizontal: 20,
+  },
+  emptyActivity: {
+    backgroundColor: '#ffffff',
+    padding: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  emptyActivityTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyActivitySubtitle: {
+    fontSize: 14,
+    color: '#94a3b8',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  
+  // Loading
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
