@@ -1,15 +1,21 @@
 import { useState } from 'react';
-import { getDb } from '../../../services/db';
+import { estadisticasService } from '../../../services/api';
+import { useEmpresa } from '../../../context/EmpresaContext';
 
 export const useProductosCriticos = () => {
   const [productosCriticos, setProductosCriticos] = useState<{ id: number; nombre: string; stock: number }[]>([]);
   const [mostrarStockCritico, setMostrarStockCritico] = useState(false);
+  const { selectedEmpresa } = useEmpresa();
 
   const cargarProductosCriticos = async () => {
     try {
-      const db = getDb();
-      const criticos = await db.getAllAsync(`SELECT id, nombre, stock FROM productos WHERE stock <= 5`);
-      setProductosCriticos(criticos as { id: number; nombre: string; stock: number }[]);
+      if (!selectedEmpresa) {
+        console.error('No hay empresa seleccionada');
+        return;
+      }
+
+      const stats = await estadisticasService.getByEmpresa(selectedEmpresa.id);
+      setProductosCriticos(stats.productosCriticos);
     } catch (error) {
       console.error("❌ Error al obtener productos críticos:", error);
     }

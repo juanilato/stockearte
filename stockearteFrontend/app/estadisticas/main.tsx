@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { setupProductosDB } from '../../services/db';
+import { useEmpresa } from '../../context/EmpresaContext';
 import AnalisisInventario from './components/AnalisisInventario';
 import EstadisticasCard from './components/EstadisticasCard';
 import EstadisticasHeader from './components/EstadisticasHeader';
@@ -24,6 +24,7 @@ export default function EstadisticasView() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
+  const { selectedEmpresa, loading: empresaLoading, empresas } = useEmpresa();
   const { estadisticas, cargarEstadisticas } = useEstadisticas();
   const { ganancias, tipoGanancia, setTipoGanancia, actualizarGanancias } = useGanancias();
   const { ventasMensuales, cargarVentasMensuales } = useVentasMensuales();
@@ -31,10 +32,14 @@ export default function EstadisticasView() {
   const { metricasAvanzadas, cargarMetricasAvanzadas } = useMetricasAvanzadas();
   const { configuracion, actualizarConfiguracion, restablecerConfiguracion } = useConfiguracionEstadisticas();
 
+  // Debug logs
+  console.log('🏢 EstadisticasView - selectedEmpresa:', selectedEmpresa);
+  console.log('🏢 EstadisticasView - empresaLoading:', empresaLoading);
+  console.log('🏢 EstadisticasView - empresas disponibles:', empresas?.length);
+
   useEffect(() => {
     const inicializar = async () => {
       try {
-        await setupProductosDB();
         const gananciasData = await cargarEstadisticas();
         actualizarGanancias(gananciasData);
         await Promise.all([
@@ -63,11 +68,59 @@ export default function EstadisticasView() {
     inicializar();
   }, []);
 
-  if (isLoading || !estadisticas) {
+  // Mostrar loading mientras se carga la empresa
+  if (empresaLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <MaterialCommunityIcons name="chart-line" size={48} color="#94a3b8" />
+        <Text style={styles.loadingText}>Cargando empresa...</Text>
+      </View>
+    );
+  }
+
+  // Mostrar loading mientras se cargan las estadísticas
+  if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <MaterialCommunityIcons name="chart-line" size={48} color="#94a3b8" />
         <Text style={styles.loadingText}>Cargando estadísticas...</Text>
+      </View>
+    );
+  }
+
+  // Mostrar mensaje si no hay estadísticas (no hay ventas)
+  if (!estadisticas || (estadisticas.ventasTotales === 0 && estadisticas.stockTotal === 0)) {
+    return (
+      <View style={styles.loadingContainer}>
+        <MaterialCommunityIcons name="chart-line-variant" size={48} color="#94a3b8" />
+        <Text style={styles.loadingText}>No hay datos disponibles</Text>
+        <Text style={styles.subText}>
+          {estadisticas?.stockTotal === 0 
+            ? 'Agrega productos y realiza ventas para ver las estadísticas'
+            : 'Realiza tu primera venta para ver las estadísticas'
+          }
+        </Text>
+      </View>
+    );
+  }
+
+  // Mostrar mensaje si no hay empresa seleccionada
+  if (!selectedEmpresa) {
+    return (
+      <View style={styles.loadingContainer}>
+        <MaterialCommunityIcons name="office-building" size={48} color="#94a3b8" />
+        <Text style={styles.loadingText}>No hay empresa seleccionada</Text>
+        <Text style={styles.subText}>
+          {empresas && empresas.length > 0 
+            ? 'Selecciona una empresa para ver las estadísticas'
+            : 'No hay empresas disponibles. Crea una empresa primero.'
+          }
+        </Text>
+        {empresas && empresas.length > 0 && (
+          <Text style={styles.subText}>
+            Empresas disponibles: {empresas.length}
+          </Text>
+        )}
       </View>
     );
   }
@@ -203,6 +256,12 @@ const styles = StyleSheet.create({
     color: '#64748b',
     marginTop: 16,
     fontWeight: '500',
+  },
+  subText: {
+    fontSize: 14,
+    color: '#64748b',
+    marginTop: 8,
+    textAlign: 'center',
   },
   content: {
     flex: 1,

@@ -12,6 +12,7 @@ import { SaleModule } from './sale/sale.module';
 import { IaModule } from './ia/ia.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { EstadisticasModule } from './estadisticas/estadisticas.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PrismaModule } from './prisma/prisma.module';
     VarianteModule,
     SaleModule,
     IaModule,
+    EstadisticasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

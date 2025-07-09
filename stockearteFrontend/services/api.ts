@@ -136,6 +136,51 @@ api.interceptors.response.use(
   }
 );
 
+// Tipos para Estadísticas
+export interface EstadisticasResponse {
+  ventasTotales: number;
+  productosVendidos: number;
+  gananciaTotal: number;
+  productosMasVendidos: {
+    nombre: string;
+    cantidad: number;
+  }[];
+  stockTotal: number;
+  productosStockCritico: number;
+  gananciaMesActual: number;
+  productoMasRentable: {
+    nombre: string;
+    rentabilidad: number;
+  } | null;
+  ganancias: {
+    dia: number;
+    mes: number;
+    anio: number;
+  };
+  ventasMensuales: {
+    mes: string;
+    total: number;
+  }[];
+  productosCriticos: {
+    id: number;
+    nombre: string;
+    stock: number;
+  }[];
+}
+
+// Servicios de Estadísticas
+export const estadisticasService = {
+  // Obtener estadísticas por empresa
+  async getByEmpresa(empresaId: number): Promise<EstadisticasResponse> {
+    try {
+      const response = await api.get(BACKEND_CONFIG.ENDPOINTS.ESTADISTICAS.GET_BY_EMPRESA.replace(':empresaId', empresaId.toString()));
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Error al obtener estadísticas');
+    }
+  },
+};
+
 // Servicios de Empresa
 export const empresaService = {
   // Crear empresa para un usuario

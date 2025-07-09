@@ -89,7 +89,12 @@ export const BACKEND_CONFIG = {
     DOWNLOAD_MODEL: '/download-model',
     
     // Subir archivos
-    UPLOAD: '/upload'
+    UPLOAD: '/upload',
+    
+    // Estadísticas
+    ESTADISTICAS: {
+      GET_BY_EMPRESA: '/estadisticas/:empresaId',
+    },
   },
   
   // Configuración del modelo
