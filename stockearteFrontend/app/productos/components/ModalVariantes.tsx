@@ -6,7 +6,10 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
     Keyboard,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
+    ScrollView,
     Text,
     TouchableOpacity,
     TouchableWithoutFeedback,
@@ -119,65 +122,110 @@ export default function ModalVariantes({ visible, onClose, producto, onActualiza
   };
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.overlay}>
-          <View style={styles.sheet}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Variantes de {producto.nombre}</Text>
-              <TouchableOpacity onPress={onClose}>
-                <MaterialCommunityIcons name="close" size={24} color="#334155" />
-              </TouchableOpacity>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalContainer}
+        >
+          <View style={styles.modalContent}>
+            {/* Header minimalista */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                Variantes de {producto.nombre}
+              </Text>
             </View>
-            <View style={styles.body}>
-              <FloatingLabelInput
-                style={styles.input}
-                label="Nombre de la variante"
-                placeholder=""
-                value={varianteNombre}
-                onChangeText={setVarianteNombre}
-              />
-              <FloatingLabelInput
-                style={styles.input}
-                label="Stock"
-                placeholder=""
-                value={varianteStock}
-                onChangeText={setVarianteStock}
-                keyboardType="numeric"
-              />
-              <TouchableOpacity style={styles.saveButton} onPress={guardarVariante}>
-                <Text style={styles.saveButtonText}>
-                  {varianteSeleccionada ? 'Actualizar' : 'Agregar'} Variante
-                </Text>
-              </TouchableOpacity>
-              <Text style={styles.sectionTitle}>Variantes existentes</Text>
-              {loading ? (
-                <Text style={styles.emptyText}>Cargando...</Text>
-              ) : variantes.length === 0 ? (
-                <Text style={styles.emptyText}>No hay variantes registradas</Text>
-              ) : (
-                <View style={styles.variantList}>
-                  {variantes.map((item) => (
-                    <View key={item.id} style={styles.variantCard}>
-                      <View style={styles.variantInfo}>
-                        <Text style={styles.variantName}>{item.nombre}</Text>
-                        <Text style={styles.variantStock}>Stock: {item.stock}</Text>
-                      </View>
-                      <View style={styles.variantActions}>
-                        <TouchableOpacity onPress={() => editarVariante(item)}>
-                          <MaterialCommunityIcons name="pencil" size={20} color="#2563eb" />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => confirmarEliminarVariante(item.id!)}>
-                          <MaterialCommunityIcons name="delete" size={20} color="#ef4444" />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  ))}
+
+            {/* Body con secciones modernas */}
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              {/* Sección de agregar variante */}
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Agregar Variante</Text>
+                
+                <View style={styles.inputRow}>
+                  <View style={styles.inputField}>
+                    <FloatingLabelInput
+                      label="Nombre de la variante"
+                      value={varianteNombre}
+                      onChangeText={setVarianteNombre}
+                    />
+                  </View>
+                  <View style={styles.inputField}>
+                    <FloatingLabelInput
+                      label="Stock"
+                      value={varianteStock}
+                      onChangeText={setVarianteStock}
+                      keyboardType="numeric"
+                    />
+                  </View>
                 </View>
-              )}
+              </View>
+
+              {/* Sección de variantes existentes */}
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Variantes Existentes</Text>
+                
+                {loading ? (
+                  <View style={styles.loadingContainer}>
+                    <MaterialCommunityIcons name="loading" size={24} color="#6366f1" />
+                    <Text style={styles.loadingText}>Cargando variantes...</Text>
+                  </View>
+                ) : variantes.length === 0 ? (
+                  <View style={styles.emptyContainer}>
+                    <MaterialCommunityIcons name="tag-outline" size={48} color="#94a3b8" />
+                    <Text style={styles.emptyText}>No hay variantes</Text>
+                    <Text style={styles.emptySubtext}>Agrega variantes para organizar tu inventario</Text>
+                  </View>
+                ) : (
+                  <View style={styles.variantList}>
+                    {variantes.map((item) => (
+                      <View key={item.id} style={styles.variantCard}>
+                        <View style={styles.variantIcon}>
+                          <MaterialCommunityIcons name="tag-outline" size={20} color="#6366f1" />
+                        </View>
+                        <View style={styles.variantInfo}>
+                          <Text style={styles.variantName}>{item.nombre}</Text>
+                          <Text style={styles.variantStock}>Stock: {item.stock}</Text>
+                        </View>
+                        <View style={styles.variantActions}>
+                          <TouchableOpacity 
+                            style={styles.actionButton}
+                            onPress={() => editarVariante(item)}
+                          >
+                            <MaterialCommunityIcons name="pencil" size={18} color="#2563eb" />
+                          </TouchableOpacity>
+                          <TouchableOpacity 
+                            style={styles.deleteButton}
+                            onPress={() => confirmarEliminarVariante(item.id!)}
+                          >
+                            <MaterialCommunityIcons name="delete" size={18} color="#ef4444" />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+            </ScrollView>
+
+            {/* Footer con botones modernos */}
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonSecondary]}
+                onPress={onClose}
+              >
+                <MaterialCommunityIcons name="close" size={24} color="#64748b" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonPrimary, (!varianteNombre || !varianteStock) && styles.modalButtonDisabled]}
+                onPress={guardarVariante}
+                disabled={!varianteNombre || !varianteStock}
+              >
+                <MaterialCommunityIcons name="plus" size={24} color="#ffffff" />
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
       {toast && (
         <CustomToast

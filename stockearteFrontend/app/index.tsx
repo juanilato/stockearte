@@ -231,7 +231,7 @@ export default function Dashboard() {
   return (
     <NavigationProvider>
       <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        <StatusBar style="dark" translucent backgroundColor="transparent" />
+        <StatusBar style="dark" translucent backgroundColor="trarnsparent" />
         <DashboardContent />
       </View>
     </NavigationProvider>

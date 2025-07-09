@@ -3,92 +3,130 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export const styles = StyleSheet.create({
-  overlay: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
 
-  sheet: {
+  modalContent: {
+    width: '100%',
+    maxWidth: 400,
     backgroundColor: '#ffffff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 24,
-    minHeight: hp('75%'),
+    borderRadius: 20,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -8 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 16,
+    shadowRadius: 12,
+    elevation: 8,
+    maxHeight: hp('85%'),
   },
 
-  header: {
+  modalHeader: {
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+
+  },
+
+  modalTitle: {
+    fontSize: RFValue(18),
+    fontWeight: '600',
+    color: '#1e293b',
+    textAlign: 'center',
+  },
+
+  modalBody: {
+    padding: 24,
+    backgroundColor: '#ffffff',
+  },
+
+  modalFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    backgroundColor: '#ffffff',
+
+  },
+
+  modalButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
   },
 
-  title: {
-    fontSize: RFValue(20),
-    fontWeight: '800',
-    color: '#1e293b',
-    letterSpacing: -0.5,
+  modalButtonPrimary: {
+    backgroundColor: '#2563eb',
   },
 
-  body: {
-    flexGrow: 1,
-  },
-
-  input: {
+  modalButtonSecondary: {
     backgroundColor: '#f8fafc',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    fontSize: RFValue(15),
-    color: '#1e293b',
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
   },
 
-  saveButton: {
-    backgroundColor: '#3b82f6',
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: 'center',
+  modalButtonDisabled: {
+    backgroundColor: '#94a3b8',
+  },
+
+  formSection: {
     marginBottom: 24,
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-
-  saveButtonText: {
-    color: '#ffffff',
-    fontSize: RFValue(16),
-    fontWeight: '600',
   },
 
   sectionTitle: {
     fontSize: RFValue(16),
-    fontWeight: '700',
-    color: '#334155',
-    marginBottom: 16,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 12,
+    paddingLeft: 4,
+  },
+
+  inputRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+
+  inputField: {
+    flex: 1,
+  },
+
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    gap: 8,
+  },
+
+  loadingText: {
+    fontSize: RFValue(14),
+    color: '#6366f1',
+    fontWeight: '500',
+  },
+
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 32,
+    gap: 12,
   },
 
   emptyText: {
+    fontSize: RFValue(16),
+    color: '#64748b',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+
+  emptySubtext: {
     fontSize: RFValue(14),
     color: '#94a3b8',
     textAlign: 'center',
-    marginBottom: 24,
-    fontStyle: 'italic',
   },
 
   variantList: {
@@ -97,19 +135,28 @@ export const styles = StyleSheet.create({
 
   variantCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
-    borderRadius: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
     elevation: 2,
+  },
+
+  variantIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#f0f9ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
 
   variantInfo: {
@@ -130,6 +177,24 @@ export const styles = StyleSheet.create({
 
   variantActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 8,
+  },
+
+  actionButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#eff6ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  deleteButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#fef2f2',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

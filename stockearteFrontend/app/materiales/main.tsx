@@ -158,7 +158,7 @@ export default function MaterialesView() {
           setExpanded={setFiltrosExpanded}
         />
         
-        <Pressable onPress={() => filtrosExpanded && setFiltrosExpanded(false)} style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
           {/*Materiales filtrados*/}
           <FlatList
             data={materialesFiltrados}
@@ -182,8 +182,9 @@ export default function MaterialesView() {
             contentContainerStyle={{ paddingBottom: 100, paddingTop: 10 }}
             ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
             showsVerticalScrollIndicator={false}
+            onScrollBeginDrag={() => filtrosExpanded && setFiltrosExpanded(false)}
           />
-        </Pressable>
+        </View>
 
         {/*Modal para la Creación/Edición de Materiales*/}
         <ModalMaterial

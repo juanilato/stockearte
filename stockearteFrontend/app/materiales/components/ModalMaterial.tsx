@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -103,59 +104,76 @@ export default function ModalMaterial({
           style={styles.modalContainer}
         >
           <View style={styles.modalContent}>
+            {/* Header minimalista */}
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
                 {material ? 'Editar Material' : 'Nuevo Material'}
               </Text>
-              <TouchableOpacity onPress={onClose}>
-                <MaterialCommunityIcons name="close" size={24} color={colors.gray[500]} />
-              </TouchableOpacity>
             </View>
+
+            {/* Body con campos modernos */}
             <View style={styles.modalBody}>
-              <FloatingLabelInput
-                label="Nombre del material"
-                value={nombre}
-                onChangeText={setNombre}
-                placeholder=""
-                autoFocus={true}
-              />
-              <FloatingLabelInput
-                label="Precio de costo"
-                value={precioCosto}
-                onChangeText={setPrecioCosto}
-                placeholder=""
-                keyboardType="numeric"
-              />
-              <FloatingLabelInput
-                label="Unidad de medida"
-                value={unidad}
-                onChangeText={setUnidad}
-                placeholder=""
-              />
-              <FloatingLabelInput
-                label="Stock disponible"
-                value={stock}
-                onChangeText={setStock}
-                placeholder=""
-                keyboardType="numeric"
-              />
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Información Básica</Text>
+                <FloatingLabelInput
+                  label="Nombre del material"
+                  value={nombre}
+                  onChangeText={setNombre}
+                  autoFocus={true}
+                />
+              </View>
+
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Precio y Stock</Text>
+                <View style={styles.priceRow}>
+                  <View style={styles.priceField}>
+                    <FloatingLabelInput
+                      label="Precio de costo"
+                      value={precioCosto}
+                      onChangeText={setPrecioCosto}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.stockField}>
+                    <FloatingLabelInput
+                      label="Stock disponible"
+                      value={stock}
+                      onChangeText={setStock}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Medidas</Text>
+                <FloatingLabelInput
+                  label="Unidad de medida"
+                  value={unidad}
+                  onChangeText={setUnidad}
+                />
+              </View>
             </View>
+
+            {/* Footer minimalista */}
             <View style={styles.modalFooter}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonSecondary]}
                 onPress={onClose}
                 disabled={isLoading}
               >
-                <MaterialCommunityIcons name="close" size={20} color={colors.gray[700]} />
-                <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancelar</Text>
+                <MaterialCommunityIcons name="close" size={24} color="#64748b" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonPrimary, isLoading && styles.modalButtonDisabled]}
                 onPress={handleSubmit}
                 disabled={isLoading}
               >
-                <MaterialCommunityIcons name="check" size={20} color={colors.white} />
-                <Text style={styles.modalButtonText}>{isLoading ? 'Guardando...' : 'Guardar'}</Text>
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <MaterialCommunityIcons name="check" size={24} color="#fff" />
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -175,7 +193,7 @@ export default function ModalMaterial({
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.3)',
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: wp('5%'),
@@ -184,64 +202,90 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     maxWidth: wp('90%'),
-    backgroundColor: colors.card,
-    borderRadius: wp('6%'),
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
+
   modalHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
-    backgroundColor: '#f0f4ff',
   },
+
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700' as const,
+    fontSize: 18,
+    fontWeight: '600',
     color: '#1e293b',
+    textAlign: 'center',
   },
+
   modalBody: {
     padding: 24,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
   },
+
+  formSection: {
+    marginBottom: 24,
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 12,
+    paddingLeft: 4,
+  },
+
+  priceRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+
+  priceField: {
+    flex: 1,
+  },
+
+  stockField: {
+    flex: 1,
+  },
+
   modalFooter: {
-    flexDirection: 'row' as const,
-    justifyContent: 'flex-end' as const,
-    gap: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 24,
     paddingBottom: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     borderTopWidth: 1,
     borderTopColor: '#f1f5f9',
   },
+
   modalButton: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 16,
-    gap: 8,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+
   modalButtonPrimary: {
     backgroundColor: '#2563eb',
   },
+
   modalButtonSecondary: {
-    backgroundColor: '#f1f5f9',
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
+    backgroundColor: '#f8fafc',
   },
+
   modalButtonDisabled: {
     backgroundColor: '#94a3b8',
-  },
-  modalButtonText: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: '#fff',
-  },
-  modalButtonTextSecondary: {
-    color: '#64748b',
   },
 }); 

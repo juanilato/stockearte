@@ -124,89 +124,95 @@ const producto: Producto = {
           style={styles.modalContainer}
         >
           <View style={styles.modalContent}>
+            {/* Header minimalista */}
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
                 {productoEditado ? 'Editar Producto' : 'Nuevo Producto'}
               </Text>
-              <TouchableOpacity onPress={onClose}>
-                <MaterialCommunityIcons name="close" size={24} color={colors.gray[500]} />
-              </TouchableOpacity>
             </View>
 
+            {/* Body con campos modernos */}
             <View style={styles.modalBody}>
-              <View style={styles.modalBody}>
-  <FloatingLabelInput
-    label="Nombre"
-    value={nombre}
-    onChangeText={setNombre}
-   
-  />
-  <FloatingLabelInput
-    label="Precio de Costo"
-    value={precioCosto}
-    onChangeText={setPrecioCosto}
-    keyboardType="numeric"
-  
-  />
-  <FloatingLabelInput
-    label="Precio de Venta"
-    value={precioVenta}
-    onChangeText={setPrecioVenta}
-    keyboardType="numeric"
-   
-  />
-  <FloatingLabelInput
-    label="Stock"
-    value={stock}
-    onChangeText={setStock}
-    keyboardType="numeric"
-   
-  />
-  {codigoNoRegistrado && !productoEditado?.codigoBarras && (
-  <FloatingLabelInput
-                    label="Código de Barras"
-                    value={codigoNoRegistrado}
-                    editable={false}
-                    style={{ opacity: 0.6 }} onChangeText={function (text: string): void {
-                      throw new Error('Function not implemented.');
-                    } }  />
-)}
-</View>
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Información Básica</Text>
+                <FloatingLabelInput
+                  label="Nombre del producto"
+                  value={nombre}
+                  onChangeText={setNombre}
+                />
+              </View>
 
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Precios</Text>
+                <View style={styles.priceRow}>
+                  <View style={styles.priceField}>
+                    <FloatingLabelInput
+                      label="Precio de costo"
+                      value={precioCosto}
+                      onChangeText={setPrecioCosto}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.priceField}>
+                    <FloatingLabelInput
+                      label="Precio de venta"
+                      value={precioVenta}
+                      onChangeText={setPrecioVenta}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Inventario</Text>
+                <FloatingLabelInput
+                  label="Stock disponible"
+                  value={stock}
+                  onChangeText={setStock}
+                  keyboardType="numeric"
+                />
+                {codigoNoRegistrado && !productoEditado?.codigoBarras && (
+                  <View style={styles.barcodeSection}>
+                    <MaterialCommunityIcons name="barcode-scan" size={20} color="#6366f1" />
+                    <Text style={styles.barcodeLabel}>Código escaneado:</Text>
+                    <Text style={styles.barcodeValue}>{codigoNoRegistrado}</Text>
+                  </View>
+                )}
+              </View>
             </View>
 
+            {/* Footer minimalista */}
             <View style={styles.modalFooter}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonSecondary]}
                 onPress={onClose}
+                disabled={loading}
               >
-                <MaterialCommunityIcons name="close" size={20} color={colors.gray[700]} />
-                <Text style={[styles.modalButtonText, styles.modalButtonTextSecondary]}>Cancelar</Text>
+                <MaterialCommunityIcons name="close" size={24} color="#64748b" />
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, loading && { opacity: 0.6 }]}
+                style={[styles.modalButton, styles.modalButtonPrimary, loading && styles.modalButtonDisabled]}
                 onPress={handleSave}
                 disabled={loading}
               >
                 {loading ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color="#fff" size="small" />
                 ) : (
-                  <MaterialCommunityIcons name="content-save" size={20} color="#fff" />
+                  <MaterialCommunityIcons name="check" size={24} color="#fff" />
                 )}
-                <Text style={styles.modalButtonText}>{productoEditado ? 'Guardar Cambios' : 'Crear Producto'}</Text>
               </TouchableOpacity>
             </View>
           </View>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
       {toast && (
-  <CustomToast
-    message={toast.message}
-    type={toast.type}
-    onClose={() => setToast(null)}
-  />
-)}
-
+        <CustomToast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </Modal>
   );
 }

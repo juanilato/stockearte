@@ -61,7 +61,7 @@ const MaterialesHeader: React.FC<MaterialesHeaderProps> = ({
   const BUTTON_SPACING = 40; // Separación pequeña pero visible
   const BASE_OFFSET = 50;   // Más negativo = más a la derecha
 
-  // Animaciones de los botones (usando los valores animados para que funcione la animación)
+  // Animaciones de los botones y contenido
   const preciosStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: preciosOffset.value }],
     opacity: menuOpen ? 1 : 0,
@@ -74,19 +74,37 @@ const MaterialesHeader: React.FC<MaterialesHeaderProps> = ({
     transform: [{ translateX: agregarOffset.value }],
     opacity: menuOpen ? 1 : 0,
   }));
+  
+  // Animación para el contenido de la izquierda
+  const titleOpacity = useSharedValue(1);
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: titleOpacity.value,
+  }));
+  
+  // Animación para el contenedor de acciones
+  const containerWidth = useSharedValue(140);
+  const containerStyle = useAnimatedStyle(() => ({
+    width: containerWidth.value,
+  }));
 
   // Animación de apertura/cierre del menú
   const toggleMenu = () => {
     if (!menuOpen) {
-      // Al abrir: cada botón se separa un poco a la izquierda del principal, pero el grupo queda bien a la derecha
-      preciosOffset.value = withSpring(-BUTTON_SPACING , { damping: 12 });
-      filtrosOffset.value = withSpring(-BUTTON_SPACING * 2 , { damping: 12 });
-      agregarOffset.value = withSpring(-BUTTON_SPACING * 3 , { damping: 12 });
+      // Al abrir: los botones se expanden por todo el ancho
+      preciosOffset.value = withSpring(-60, { damping: 12 });
+      filtrosOffset.value = withSpring(-120, { damping: 12 });
+      agregarOffset.value = withSpring(-180, { damping: 12 });
+      containerWidth.value = withSpring(-240, { damping: 12 });
+      // Fade out del título
+      titleOpacity.value = withSpring(0, { damping: 12 });
     } else {
       // Al cerrar: todos los botones vuelven a su lugar
       preciosOffset.value = withSpring(0, { damping: 12 });
       filtrosOffset.value = withSpring(0, { damping: 12 });
       agregarOffset.value = withSpring(0, { damping: 12 });
+      containerWidth.value = withSpring(140, { damping: 12 });
+      // Fade in del título
+      titleOpacity.value = withSpring(1, { damping: 12 });
     }
     setMenuOpen(!menuOpen);
   };
@@ -100,50 +118,61 @@ const MaterialesHeader: React.FC<MaterialesHeaderProps> = ({
   return (
     <View style={styles.headerWrapper}>
       <View style={styles.headerContainer}>
-        <View style={{ flex: 1 }}>
-        <View style={{ gap: 2 }}>
-  <Text style={styles.tituloModern}>🧱 Materiales</Text>
-  <Text style={styles.subtituloModern}>
-    <Text style={{ fontWeight: '700', color: '#0f172a' }}>{cantidad}</Text> registrados en total
-  </Text>
-</View>
-        </View>
-        {/* Menú de acciones animado */}
-        <View style={styles.actionsContainer}>
-          {/* Botón de actualizar precios, animado y solo visible con el menú abierto */}
+        <Animated.View style={[styles.titleSection, titleStyle]}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.tituloModern}>🧱 Materiales</Text>
+            <View style={styles.badgeContainer}>
+              <Text style={styles.badgeText}>{cantidad}</Text>
+            </View>
+          </View>
+          <Text style={styles.subtituloModern}>
+            Materiales registrados en total
+          </Text>
+        </Animated.View>
+        
+        {/* Menú de acciones moderno */}
+        <Animated.View style={[styles.actionsContainer, containerStyle]}>
           {menuOpen && (
             <Animated.View style={[styles.actionButton, preciosStyle]}> 
-              <TouchableOpacity onPress={onActualizarPrecios}>
-                <MaterialCommunityIcons name="currency-usd" size={22} color="#475569" />
+              <TouchableOpacity 
+                style={styles.actionButtonInner}
+                onPress={onActualizarPrecios}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name="currency-usd" size={20} color="#6366f1" />
               </TouchableOpacity>
             </Animated.View>
           )}
-          {/* Botón de filtros, animado y solo visible con el menú abierto */}
           {menuOpen && (
             <Animated.View style={[styles.actionButton, filtrosStyle]}> 
-              <TouchableOpacity onPress={toggleExpand}>
-                <MaterialCommunityIcons name={isExpanded ? "chevron-up" : "tune-variant"} size={22} color="#475569" />
+              <TouchableOpacity 
+                style={styles.actionButtonInner}
+                onPress={toggleExpand}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name={isExpanded ? "chevron-up" : "tune-variant"} size={20} color="#6366f1" />
               </TouchableOpacity>
             </Animated.View>
           )}
-          {/* Botón de agregar material, animado y solo visible con el menú abierto */}
           {menuOpen && (
             <Animated.View style={[styles.actionButton, agregarStyle]}> 
-              <TouchableOpacity onPress={onAgregar}>
-                <MaterialCommunityIcons name="plus" size={22} color="#475569" />
+              <TouchableOpacity 
+                style={styles.actionButtonInner}
+                onPress={onAgregar}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name="plus" size={20} color="#6366f1" />
               </TouchableOpacity>
             </Animated.View>
           )}
-          {/* Botón principal: box de materiales o X según estado */}
           <TouchableOpacity
             style={[styles.actionButton, styles.actionButtonDestacado]}
             onPress={toggleMenu}
             activeOpacity={0.8}
           >
-            {/* Cambiado: cube-outline (box) cuando está cerrado, close cuando está abierto */}
             <MaterialCommunityIcons name={menuOpen ? "close" : "cube-outline"} size={22} color="#fff" />
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </View>
       {/* Filtros, solo visibles si están expandidos */}
       {isExpanded && (
@@ -184,30 +213,51 @@ const MaterialesHeader: React.FC<MaterialesHeaderProps> = ({
 
 const styles = StyleSheet.create({
   headerWrapper: {
-    backgroundColor: '#f8fafc',
-    paddingTop: 20,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
+    backgroundColor: '#ffffff',
+    paddingTop: 24,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    borderBottomColor: '#f1f5f9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
     zIndex: 10,
   },
+  titleSection: {
+    flex: 1,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 4,
+  },
   tituloModern: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#1e293b',
-    letterSpacing: -0.3,
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  badgeContainer: {
+    backgroundColor: '#6366f1',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 24,
+    alignItems: 'center',
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#ffffff',
   },
   subtituloModern: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#64748b',
+    fontWeight: '500',
   },
   headerContainer: {
     flexDirection: 'row',
@@ -226,83 +276,124 @@ const styles = StyleSheet.create({
   actionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-
     borderRadius: 99,
     padding: 4,
     width: 140,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   actionButton: {
     padding: 8,
     borderRadius: 99,
     position: 'absolute',
     right: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#f8fafc',
     marginLeft: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  actionButtonInner: {
+    padding: 8,
+    borderRadius: 99,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   actionButtonDestacado: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#6366f1',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   filtersContainer: {
-    paddingTop: 14,
+    paddingTop: 16,
     position: 'absolute',
-    top: 88,
+    top: 100,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: '#f1f5f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
     zIndex: 5,
   },
   filtersHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   inputNombre: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
+    backgroundColor: '#f8fafc',
+    borderRadius: 16,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
     fontSize: 16,
-    color: '#1e293b',
+    color: '#0f172a',
     flex: 1,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   resetButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#f1f5f9',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f8fafc',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   rowFiltros: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 8,
+    gap: 12,
   },
   filtroGroup: {
     flex: 1,
   },
   filtroLabel: {
-    fontSize: 13,
-    color: '#94a3b8',
+    fontSize: 12,
+    color: '#64748b',
     fontWeight: '600',
-    marginBottom: 6,
+    marginBottom: 8,
     marginLeft: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   inputFiltro: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     fontSize: 14,
-    color: '#1e293b',
-    marginBottom: 6,
+    color: '#0f172a',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
 });
 

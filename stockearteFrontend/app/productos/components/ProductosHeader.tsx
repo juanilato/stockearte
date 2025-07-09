@@ -65,13 +65,23 @@ const ProductosHeader: React.FC<ProductosHeaderProps> = ({
   useEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   }, []);
-  // --- Animación de menú de acciones (igual que MaterialesHeader) ---
+  // --- Animación de menú de acciones ---
   const [menuOpen, setMenuOpen] = React.useState(false);
   const precioOffset = useSharedValue(0);
   const scanOffset = useSharedValue(0);
   const filtrosOffset = useSharedValue(0);
   const agregarOffset = useSharedValue(0);
+  const containerWidth = useSharedValue(180);
+  const titleOpacity = useSharedValue(1);
   const BUTTON_SPACING = 40;
+  
+  // Animaciones
+  const containerStyle = useAnimatedStyle(() => ({
+    width: containerWidth.value,
+  }));
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: titleOpacity.value,
+  }));
 
   const precioStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: precioOffset.value }],
@@ -92,15 +102,23 @@ const ProductosHeader: React.FC<ProductosHeaderProps> = ({
 
   const toggleMenu = () => {
     if (!menuOpen) {
-      precioOffset.value = withSpring(-BUTTON_SPACING, { damping: 12 });
-      scanOffset.value = withSpring(-BUTTON_SPACING * 2, { damping: 12 });
-      filtrosOffset.value = withSpring(-BUTTON_SPACING * 3, { damping: 12 });
-      agregarOffset.value = withSpring(-BUTTON_SPACING * 4, { damping: 12 });
+      // Al abrir: los botones se expanden por todo el ancho
+      precioOffset.value = withSpring(-60, { damping: 12 });
+      scanOffset.value = withSpring(-120, { damping: 12 });
+      filtrosOffset.value = withSpring(-180, { damping: 12 });
+      agregarOffset.value = withSpring(-240, { damping: 12 });
+      containerWidth.value = withSpring(80, { damping: 12 });
+      // Fade out del título
+      titleOpacity.value = withSpring(0, { damping: 12 });
     } else {
+      // Al cerrar: todos los botones vuelven a su lugar
       precioOffset.value = withSpring(0, { damping: 12 });
       scanOffset.value = withSpring(0, { damping: 12 });
       filtrosOffset.value = withSpring(0, { damping: 12 });
       agregarOffset.value = withSpring(0, { damping: 12 });
+      containerWidth.value = withSpring(180, { damping: 12 });
+      // Fade in del título
+      titleOpacity.value = withSpring(1, { damping: 12 });
     }
     setMenuOpen(!menuOpen);
   };
@@ -108,51 +126,71 @@ const ProductosHeader: React.FC<ProductosHeaderProps> = ({
   return (
     <View style={styles.headerWrapper}>
       <View style={styles.headerContainer}>
-        <View style={{ flex: 1 }}>
-        <View style={{ gap: 2 }}>
-  <Text style={styles.tituloModern}>📦 Inventario</Text>
-  <Text style={styles.subtituloModern}>
-    <Text style={{ fontWeight: '700', color: '#0f172a' }}>{cantidad}</Text> productos registrados
-  </Text>
-</View>
-        </View>
-        <View style={styles.actionsContainer}>
-  {menuOpen && (
-    <Animated.View style={[styles.actionButton, precioStyle]}> 
-      <TouchableOpacity onPress={onPrice}>
-        <MaterialCommunityIcons name="currency-usd" size={22} color="#475569" />
-      </TouchableOpacity>
-    </Animated.View>
-  )}
-  {menuOpen && (
-    <Animated.View style={[styles.actionButton, scanStyle]}> 
-      <TouchableOpacity onPress={onScan}>
-        <MaterialCommunityIcons name="barcode-scan" size={22} color="#475569" />
-      </TouchableOpacity>
-    </Animated.View>
-  )}
-  {menuOpen && (
-    <Animated.View style={[styles.actionButton, filtrosStyle]}> 
-      <TouchableOpacity onPress={toggleExpand}>
-        <MaterialCommunityIcons name={isExpanded ? "chevron-up" : "tune-variant"} size={22} color="#475569" />
-      </TouchableOpacity>
-    </Animated.View>
-  )}
-  {menuOpen && (
-    <Animated.View style={[styles.actionButton, agregarStyle]}> 
-      <TouchableOpacity onPress={onAgregar}>
-        <MaterialCommunityIcons name="plus" size={22} color="#475569" />
-      </TouchableOpacity>
-    </Animated.View>
-  )}
-  <TouchableOpacity
-    style={[styles.actionButton, styles.actionButtonDestacado]}
-    onPress={toggleMenu}
-    activeOpacity={0.8}
-  >
-    <MaterialCommunityIcons name={menuOpen ? "close" : "package-variant"} size={22} color="#fff" />
-  </TouchableOpacity>
-</View>
+        <Animated.View style={[styles.titleSection, titleStyle]}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.tituloModern}>📦 Inventario</Text>
+            <View style={styles.badgeContainer}>
+              <Text style={styles.badgeText}>{cantidad}</Text>
+            </View>
+          </View>
+          <Text style={styles.subtituloModern}>
+            Productos registrados
+          </Text>
+        </Animated.View>
+        
+        <Animated.View style={[styles.actionsContainer, containerStyle]}>
+          {menuOpen && (
+            <Animated.View style={[styles.actionButton, precioStyle]}> 
+              <TouchableOpacity 
+                style={styles.actionButtonInner}
+                onPress={onPrice}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name="currency-usd" size={20} color="#6366f1" />
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+          {menuOpen && (
+            <Animated.View style={[styles.actionButton, scanStyle]}> 
+              <TouchableOpacity 
+                style={styles.actionButtonInner}
+                onPress={onScan}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name="barcode-scan" size={20} color="#6366f1" />
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+          {menuOpen && (
+            <Animated.View style={[styles.actionButton, filtrosStyle]}> 
+              <TouchableOpacity 
+                style={styles.actionButtonInner}
+                onPress={toggleExpand}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name={isExpanded ? "chevron-up" : "tune-variant"} size={20} color="#6366f1" />
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+          {menuOpen && (
+            <Animated.View style={[styles.actionButton, agregarStyle]}> 
+              <TouchableOpacity 
+                style={styles.actionButtonInner}
+                onPress={onAgregar}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name="plus" size={20} color="#6366f1" />
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+          <TouchableOpacity
+            style={[styles.actionButton, styles.actionButtonDestacado]}
+            onPress={toggleMenu}
+            activeOpacity={0.8}
+          >
+            <MaterialCommunityIcons name={menuOpen ? "close" : "package-variant"} size={22} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
       </View>
 
       {isExpanded && (
@@ -198,31 +236,51 @@ const ProductosHeader: React.FC<ProductosHeaderProps> = ({
 
 const styles = StyleSheet.create({
   headerWrapper: {
-    backgroundColor: '#f8fafc', // fondo gris claro moderno
-    paddingTop: 20,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
+    backgroundColor: '#ffffff',
+    paddingTop: 24,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: '#f1f5f9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3, // para Android
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
     zIndex: 10,
   },
-  
+  titleSection: {
+    flex: 1,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 4,
+  },
   tituloModern: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#1e293b',
-    letterSpacing: -0.3,
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  badgeContainer: {
+    backgroundColor: '#6366f1',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 24,
+    alignItems: 'center',
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#ffffff',
   },
   subtituloModern: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#64748b',
+    fontWeight: '500',
   },
   headerContainer: {
     flexDirection: 'row',
@@ -243,83 +301,125 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 99,
     padding: 4,
-    width: 180, // Un poco más ancho para 4 botones
+    width: 180,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   actionButton: {
     padding: 8,
     borderRadius: 99,
     position: 'absolute',
     right: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#f8fafc',
     marginLeft: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  actionButtonInner: {
+    padding: 8,
+    borderRadius: 99,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   actionButtonDestacado: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#6366f1',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
     position: 'absolute',
     right: 10,
     zIndex: 2,
   },
   filtersContainer: {
-    paddingTop: 14,
+    paddingTop: 16,
     position: 'absolute',
-    top: 88,
+    top: 100,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: '#f1f5f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
     zIndex: 5,
   },
   filtersHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   inputNombre: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
+    backgroundColor: '#f8fafc',
+    borderRadius: 16,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
     fontSize: 16,
-    color: '#1e293b',
+    color: '#0f172a',
     flex: 1,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   resetButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#f1f5f9',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f8fafc',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   rowFiltros: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 8,
+    gap: 12,
   },
   filtroGroup: {
     flex: 1,
   },
   filtroLabel: {
-    fontSize: 13,
-    color: '#94a3b8',
+    fontSize: 12,
+    color: '#64748b',
     fontWeight: '600',
-    marginBottom: 6,
+    marginBottom: 8,
     marginLeft: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   inputFiltro: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     fontSize: 14,
-    color: '#1e293b',
-    marginBottom: 6,
+    color: '#0f172a',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
 });
 

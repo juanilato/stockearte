@@ -41,8 +41,6 @@ export class EstadisticasService {
     const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
     const inicioAnio = new Date(hoy.getFullYear(), 0, 1);
 
-    console.log(`📊 Backend - Calculando estadísticas para empresa ${empresaId}`);
-
     // Obtener todas las ventas de la empresa
     const ventas = await this.prisma.venta.findMany({
       where: {
@@ -57,16 +55,12 @@ export class EstadisticasService {
       },
     });
 
-    console.log(`📊 Backend - Ventas encontradas: ${ventas.length}`);
-
     // Obtener todos los productos de la empresa
     const productos = await this.prisma.producto.findMany({
       where: {
         empresaId: empresaId,
       },
     });
-
-    console.log(`📊 Backend - Productos encontrados: ${productos.length}`);
 
     // Calcular estadísticas básicas
     const ventasTotales = ventas.length;
@@ -173,12 +167,6 @@ export class EstadisticasService {
       ventasMensuales,
       productosCriticos,
     };
-
-    console.log(`📊 Backend - Estadísticas calculadas:`, {
-      ventasTotales: resultado.ventasTotales,
-      stockTotal: resultado.stockTotal,
-      gananciaTotal: resultado.gananciaTotal,
-    });
 
     return resultado;
   }

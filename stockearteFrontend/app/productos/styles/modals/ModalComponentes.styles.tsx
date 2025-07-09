@@ -3,186 +3,246 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 export const styles = StyleSheet.create({
-  overlay: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-    alignItems: 'stretch',
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: wp('5%'),
   },
 
-  sheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: hp('20%'),
-    minHeight: hp('75%'),
+  modalContent: {
     width: '100%',
+    maxWidth: wp('90%'),
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -8 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 16,
+    shadowRadius: 12,
+    elevation: 8,
+    maxHeight: hp('85%'),
   },
 
-  header: {
+  modalHeader: {
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+
+  },
+
+  modalTitle: {
+    fontSize: RFValue(18),
+    fontWeight: '600',
+    color: '#1e293b',
+    textAlign: 'center',
+  },
+
+  modalBody: {
+    padding: 24,
+    backgroundColor: '#ffffff',
+  },
+
+  modalFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    backgroundColor: '#ffffff',
+
+  },
+
+  modalButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
   },
 
-  title: {
-    fontSize: RFValue(20),
-    fontWeight: '800',
-    color: '#1e293b',
-    letterSpacing: -0.5,
+  modalButtonPrimary: {
+    backgroundColor: '#2563eb',
   },
 
-  body: {
+  modalButtonSecondary: {
+    backgroundColor: '#f8fafc',
+  },
+
+  modalButtonDisabled: {
+    backgroundColor: '#94a3b8',
+  },
+
+  formSection: {
     marginBottom: 24,
   },
 
   sectionTitle: {
     fontSize: RFValue(16),
-    fontWeight: '700',
-    color: '#334155',
-    marginVertical: 16,
+    fontWeight: '600',
+    color: '#374151',
     marginBottom: 12,
+    paddingLeft: 4,
   },
 
-  empty: {
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    gap: 8,
+  },
+
+  loadingText: {
+    fontSize: RFValue(14),
+    color: '#6366f1',
+    fontWeight: '500',
+  },
+
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    gap: 8,
+  },
+
+  errorText: {
+    fontSize: RFValue(14),
+    color: '#ef4444',
+    fontWeight: '500',
+  },
+
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 32,
+    gap: 12,
+  },
+
+  emptyText: {
+    fontSize: RFValue(16),
+    color: '#64748b',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+
+  emptySubtext: {
     fontSize: RFValue(14),
     color: '#94a3b8',
     textAlign: 'center',
-    paddingVertical: 24,
-    fontStyle: 'italic',
   },
 
-  componenteItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-  },
-
-  componenteInfo: {
-    flex: 1,
-  },
-
-  componenteNombre: {
-    fontSize: RFValue(15),
-    fontWeight: '600',
-    color: '#1e293b',
-    marginBottom: 4,
-  },
-
-  componenteDetalles: {
-    fontSize: RFValue(13),
-    color: '#64748b',
-  },
-
-  materialList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
+  materialSelector: {
     marginBottom: 20,
   },
 
-  materialBox: {
+  selectorLabel: {
+    fontSize: RFValue(14),
+    color: '#64748b',
+    fontWeight: '500',
+    marginBottom: 12,
+  },
+
+  materialScroll: {
+    maxHeight: 200,
+  },
+
+  materialGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+
+  materialCard: {
     backgroundColor: '#f8fafc',
-    padding: 16,
-    borderRadius: 16,
+    borderRadius: 8,
+    padding: 12,
     width: wp('48%'),
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#e2e8f0',
   },
 
-  materialSelected: {
-    borderWidth: 2,
-    borderColor: '#3b82f6',
+  materialCardSelected: {
+    borderColor: '#2563eb',
     backgroundColor: '#eff6ff',
   },
 
-  materialName: {
-    fontSize: RFValue(14),
-    fontWeight: '600',
-    color: '#1e293b',
-    marginBottom: 4,
+  materialIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    backgroundColor: '#f0f9ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
   },
 
-  materialDetails: {
-    fontSize: RFValue(12),
+  materialName: {
+    fontSize: RFValue(11),
+    fontWeight: '600',
+    color: '#1e293b',
+    textAlign: 'center',
+    marginBottom: 3,
+  },
+
+  materialPrice: {
+    fontSize: RFValue(10),
+    fontWeight: '700',
+    color: '#2563eb',
+    marginBottom: 1,
+  },
+
+  materialUnit: {
+    fontSize: RFValue(9),
     color: '#64748b',
   },
 
-  input: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    fontSize: RFValue(15),
-    color: '#1e293b',
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
+  quantitySection: {
+    marginTop: 16,
   },
 
-  button: {
-    backgroundColor: '#3b82f6',
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: 'center',
-    marginBottom: hp('5%'),
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+  quantityLabel: {
+    fontSize: RFValue(14),
+    color: '#64748b',
+    fontWeight: '500',
+    marginBottom: 8,
   },
 
-  buttonDisabled: {
-    backgroundColor: '#cbd5e1',
-    shadowOpacity: 0,
-    elevation: 0,
+  componentScroll: {
+    maxHeight: 200,
   },
 
-  buttonText: {
-    color: '#ffffff',
-    fontSize: RFValue(16),
-    fontWeight: '600',
-  },
-
-  componentList: {
-    gap: 16,
-    marginBottom: 20,
+  componentGrid: {
+    gap: 8,
   },
 
   componentCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  componentIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    backgroundColor: '#f0f9ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
   },
 
   componentInfo: {
@@ -190,14 +250,34 @@ export const styles = StyleSheet.create({
   },
 
   componentName: {
-    fontSize: RFValue(15),
+    fontSize: RFValue(13),
     fontWeight: '600',
     color: '#1e293b',
-    marginBottom: 4,
+    marginBottom: 2,
   },
 
   componentDetails: {
-    fontSize: RFValue(13),
+    fontSize: RFValue(11),
     color: '#64748b',
+  },
+
+  componentPrice: {
+    alignItems: 'flex-end',
+    marginRight: 10,
+  },
+
+  priceText: {
+    fontSize: RFValue(12),
+    fontWeight: '700',
+    color: '#2563eb',
+  },
+
+  deleteButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    backgroundColor: '#fef2f2',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

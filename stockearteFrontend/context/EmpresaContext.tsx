@@ -34,11 +34,7 @@ export const EmpresaProvider: React.FC<EmpresaProviderProps> = ({ children }) =>
   const { user } = useAuth();
 
   const refreshEmpresas = async () => {
-    console.log('🏢 EmpresaContext: refreshEmpresas iniciado');
-    console.log('👤 User ID:', user?.id);
-    
     if (!user?.id) {
-      console.warn('⚠️ EmpresaContext: No hay user ID');
       return;
     }
 
@@ -46,28 +42,22 @@ export const EmpresaProvider: React.FC<EmpresaProviderProps> = ({ children }) =>
     setError(null);
     
     try {
-      console.log('🌐 EmpresaContext: Llamando a empresaService.getAllFromUser...');
       const empresasData = await empresaService.getAllFromUser(user.id);
-      console.log('✅ EmpresaContext: Empresas cargadas:', empresasData);
       setEmpresas(empresasData);
       
       // Si no hay empresa seleccionada y hay empresas disponibles, seleccionar la primera
       if (!selectedEmpresa && empresasData.length > 0) {
-        console.log('🏢 EmpresaContext: Seleccionando primera empresa:', empresasData[0]);
         setSelectedEmpresa(empresasData[0]);
       }
       
       // Si la empresa seleccionada ya no existe, limpiar la selección
       if (selectedEmpresa && !empresasData.find(emp => emp.id === selectedEmpresa.id)) {
-        console.log('🏢 EmpresaContext: Empresa seleccionada ya no existe, seleccionando primera disponible');
         setSelectedEmpresa(empresasData.length > 0 ? empresasData[0] : null);
       }
     } catch (err: any) {
-      console.error('❌ EmpresaContext: Error cargando empresas:', err);
       setError(err.message || 'Error al cargar empresas');
     } finally {
       setLoading(false);
-      console.log('🏁 EmpresaContext: refreshEmpresas finalizado');
     }
   };
 
@@ -89,6 +79,8 @@ export const EmpresaProvider: React.FC<EmpresaProviderProps> = ({ children }) =>
     error,
     refreshEmpresas,
   };
+
+
 
   return (
     <EmpresaContext.Provider value={value}>

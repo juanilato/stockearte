@@ -173,7 +173,8 @@ export const estadisticasService = {
   // Obtener estadísticas por empresa
   async getByEmpresa(empresaId: number): Promise<EstadisticasResponse> {
     try {
-      const response = await api.get(BACKEND_CONFIG.ENDPOINTS.ESTADISTICAS.GET_BY_EMPRESA.replace(':empresaId', empresaId.toString()));
+      const endpoint = BACKEND_CONFIG.ENDPOINTS.ESTADISTICAS.GET_BY_EMPRESA.replace(':empresaId', empresaId.toString());
+      const response = await api.get(endpoint);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Error al obtener estadísticas');

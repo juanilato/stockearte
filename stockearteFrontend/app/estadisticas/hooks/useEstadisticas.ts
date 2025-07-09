@@ -8,23 +8,17 @@ export const useEstadisticas = () => {
 
   const cargarEstadisticas = async () => {
     try {
-      console.log('🏢 useEstadisticas - selectedEmpresa:', selectedEmpresa);
-      
       if (!selectedEmpresa) {
-        console.error('❌ useEstadisticas - No hay empresa seleccionada');
+        setEstadisticas(null);
         return { dia: 0, mes: 0, anio: 0 };
       }
 
-      console.log('🏢 useEstadisticas - Llamando API con empresaId:', selectedEmpresa.id);
       const stats = await estadisticasService.getByEmpresa(selectedEmpresa.id);
-      console.log('✅ useEstadisticas - Estadísticas cargadas:', stats);
       
-      // Verificar si hay datos válidos
-      if (stats && (stats.ventasTotales > 0 || stats.stockTotal > 0)) {
+      if (stats) {
         setEstadisticas(stats);
-        return stats.ganancias;
+        return stats.ganancias || { dia: 0, mes: 0, anio: 0 };
       } else {
-        console.log('📊 useEstadisticas - No hay datos de ventas, estableciendo estadísticas vacías');
         const emptyStats = {
           ventasTotales: 0,
           productosVendidos: 0,
@@ -42,8 +36,21 @@ export const useEstadisticas = () => {
         return emptyStats.ganancias;
       }
     } catch (error) {
-      console.error('❌ useEstadisticas - Error al cargar estadísticas:', error);
-      return { dia: 0, mes: 0, anio: 0 };
+      const errorStats = {
+        ventasTotales: 0,
+        productosVendidos: 0,
+        gananciaTotal: 0,
+        productosMasVendidos: [],
+        stockTotal: 0,
+        productosStockCritico: 0,
+        gananciaMesActual: 0,
+        productoMasRentable: null,
+        ganancias: { dia: 0, mes: 0, anio: 0 },
+        ventasMensuales: [],
+        productosCriticos: [],
+      };
+      setEstadisticas(errorStats);
+      return errorStats.ganancias;
     }
   };
 

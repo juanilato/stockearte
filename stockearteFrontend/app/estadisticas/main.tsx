@@ -32,14 +32,18 @@ export default function EstadisticasView() {
   const { metricasAvanzadas, cargarMetricasAvanzadas } = useMetricasAvanzadas();
   const { configuracion, actualizarConfiguracion, restablecerConfiguracion } = useConfiguracionEstadisticas();
 
-  // Debug logs
-  console.log('🏢 EstadisticasView - selectedEmpresa:', selectedEmpresa);
-  console.log('🏢 EstadisticasView - empresaLoading:', empresaLoading);
-  console.log('🏢 EstadisticasView - empresas disponibles:', empresas?.length);
+
+  
+
 
   useEffect(() => {
     const inicializar = async () => {
       try {
+        if (!selectedEmpresa) {
+          return;
+        }
+        
+        setIsLoading(true);
         const gananciasData = await cargarEstadisticas();
         actualizarGanancias(gananciasData);
         await Promise.all([
@@ -60,13 +64,13 @@ export default function EstadisticasView() {
           }),
         ]).start();
       } catch (error) {
-        console.error("❌ Error en inicialización:", error);
+        // Error silencioso
       } finally {
         setIsLoading(false);
       }
     };
     inicializar();
-  }, []);
+  }, [selectedEmpresa?.id]);
 
   // Mostrar loading mientras se carga la empresa
   if (empresaLoading) {
@@ -74,6 +78,27 @@ export default function EstadisticasView() {
       <View style={styles.loadingContainer}>
         <MaterialCommunityIcons name="chart-line" size={48} color="#94a3b8" />
         <Text style={styles.loadingText}>Cargando empresa...</Text>
+      </View>
+    );
+  }
+
+  // Mostrar mensaje si no hay empresa seleccionada (debe ir antes que las estadísticas)
+  if (!selectedEmpresa) {
+    return (
+      <View style={styles.loadingContainer}>
+        <MaterialCommunityIcons name="office-building" size={48} color="#94a3b8" />
+        <Text style={styles.loadingText}>No hay empresa seleccionada</Text>
+        <Text style={styles.subText}>
+          {empresas && empresas.length > 0 
+            ? 'Selecciona una empresa para ver las estadísticas'
+            : 'No hay empresas disponibles. Crea una empresa primero.'
+          }
+        </Text>
+        {empresas && empresas.length > 0 && (
+          <Text style={styles.subText}>
+            Empresas disponibles: {empresas.length}
+          </Text>
+        )}
       </View>
     );
   }
@@ -100,27 +125,6 @@ export default function EstadisticasView() {
             : 'Realiza tu primera venta para ver las estadísticas'
           }
         </Text>
-      </View>
-    );
-  }
-
-  // Mostrar mensaje si no hay empresa seleccionada
-  if (!selectedEmpresa) {
-    return (
-      <View style={styles.loadingContainer}>
-        <MaterialCommunityIcons name="office-building" size={48} color="#94a3b8" />
-        <Text style={styles.loadingText}>No hay empresa seleccionada</Text>
-        <Text style={styles.subText}>
-          {empresas && empresas.length > 0 
-            ? 'Selecciona una empresa para ver las estadísticas'
-            : 'No hay empresas disponibles. Crea una empresa primero.'
-          }
-        </Text>
-        {empresas && empresas.length > 0 && (
-          <Text style={styles.subText}>
-            Empresas disponibles: {empresas.length}
-          </Text>
-        )}
       </View>
     );
   }

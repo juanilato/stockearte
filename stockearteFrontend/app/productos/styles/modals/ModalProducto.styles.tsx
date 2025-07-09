@@ -6,7 +6,7 @@ import { colors } from '../../../styles/theme'; // ajustá el path si es distint
 export const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.3)',
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: wp('5%'),
@@ -15,86 +15,106 @@ export const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     maxWidth: wp('90%'),
-    backgroundColor: colors.card,
-    borderRadius: wp('6%'),
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
 
   modalHeader: {
-    backgroundColor: colors.softPrimary,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: wp('5%'),
-    paddingVertical: hp('2%'),
-    borderTopLeftRadius: wp('6%'),
-    borderTopRightRadius: wp('6%'),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+
   },
 
   modalTitle: {
     fontSize: RFValue(18),
-    fontWeight: '700',
-    color: colors.text,
-  },
-
-  closeIcon: {
-    padding: wp('2.5%'),
-    borderRadius: 999,
-    backgroundColor: colors.neutral,
+    fontWeight: '600',
+    color: '#1e293b',
+    textAlign: 'center',
   },
 
   modalBody: {
-    padding: wp('5%'),
+    padding: 24,
+    backgroundColor: '#ffffff',
   },
 
-  input: {
-    backgroundColor: colors.inputBg,
-    borderRadius: wp('3%'),
-    paddingHorizontal: wp('4%'),
-    paddingVertical: hp('1.5%'),
-    fontSize: RFValue(15),
-    color: colors.strongText,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: hp('2%'),
+  formSection: {
+    marginBottom: 24,
+  },
+
+  sectionTitle: {
+    fontSize: RFValue(16),
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 12,
+    paddingLeft: 4,
+  },
+
+  priceRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+
+  priceField: {
+    flex: 1,
+  },
+
+  barcodeSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f9ff',
+    padding: 12,
+    borderRadius: 12,
+    marginTop: 12,
+    gap: 8,
+  },
+
+  barcodeLabel: {
+    fontSize: RFValue(14),
+    color: '#6366f1',
+    fontWeight: '500',
+  },
+
+  barcodeValue: {
+    fontSize: RFValue(14),
+    color: '#1e293b',
+    fontWeight: '600',
   },
 
   modalFooter: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: wp('4%'),
-    paddingHorizontal: wp('5%'),
-    paddingBottom: hp('2%'),
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    backgroundColor: '#ffffff',
+
   },
 
   modalButton: {
-    flexDirection: 'row',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: wp('5%'),
-    paddingVertical: hp('1.5%'),
-    borderRadius: wp('5%'),
-    gap: wp('2%'),
   },
 
   modalButtonPrimary: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#2563eb',
   },
 
   modalButtonSecondary: {
-    backgroundColor: colors.secondaryButtonBg,
-    borderWidth: 1,
-    borderColor: colors.secondaryBorder,
+    backgroundColor: '#f8fafc',
   },
 
-  modalButtonText: {
-    fontSize: RFValue(14),
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-
-  modalButtonTextSecondary: {
-    color: colors.text,
+  modalButtonDisabled: {
+    backgroundColor: '#94a3b8',
   },
 });

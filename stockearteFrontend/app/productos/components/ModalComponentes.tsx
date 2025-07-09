@@ -168,98 +168,151 @@ export default function ModalComponentes({ visible, onClose, producto, onActuali
   };
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.overlay}>
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.sheet}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Componentes de {producto.nombre}</Text>
-              <TouchableOpacity onPress={onClose}>
-                <MaterialCommunityIcons name="close" size={24} color="#334155" />
-              </TouchableOpacity>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalContainer}
+        >
+          <View style={styles.modalContent}>
+            {/* Header minimalista */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                Componentes de {producto.nombre}
+              </Text>
             </View>
 
-            <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-              <Text style={styles.sectionTitle}>Agregar nuevo componente</Text>
-              {materialesLoading ? (
-                <Text style={styles.empty}>Cargando materiales...</Text>
-              ) : materialesError ? (
-                <Text style={styles.empty}>{materialesError}</Text>
-              ) : (!materiales || materiales.length === 0) ? (
-                <Text style={styles.empty}>No hay materiales disponibles para este producto o empresa.</Text>
-              ) : (
-                <View style={{ maxHeight: 250, marginBottom: 16 }}>
-                  <ScrollView style={{ flexGrow: 0 }} showsVerticalScrollIndicator={true}>
-                    <View style={styles.materialList}>
-                      {materiales.map((mat) => (
-                        <TouchableOpacity
-                          key={mat.id}
-                          style={[
-                            styles.materialBox,
-                            materialSeleccionado?.id === mat.id && styles.materialSelected,
-                          ]}
-                          onPress={() => setMaterialSeleccionado(mat)}
-                        >
-                          <Text style={styles.materialName}>{mat.nombre}</Text>
-                          <Text style={styles.materialDetails}>
-                            {mat.unidad} · ${mat.precioCosto}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
+            {/* Body con secciones modernas */}
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              {/* Sección de agregar componente */}
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Agregar Componente</Text>
+                
+                {materialesLoading ? (
+                  <View style={styles.loadingContainer}>
+                    <MaterialCommunityIcons name="loading" size={24} color="#6366f1" />
+                    <Text style={styles.loadingText}>Cargando materiales...</Text>
+                  </View>
+                ) : materialesError ? (
+                  <View style={styles.errorContainer}>
+                    <MaterialCommunityIcons name="alert-circle" size={24} color="#ef4444" />
+                    <Text style={styles.errorText}>{materialesError}</Text>
+                  </View>
+                ) : (!materiales || materiales.length === 0) ? (
+                  <View style={styles.emptyContainer}>
+                    <MaterialCommunityIcons name="package-variant" size={48} color="#94a3b8" />
+                    <Text style={styles.emptyText}>No hay materiales disponibles</Text>
+                    <Text style={styles.emptySubtext}>Agrega materiales a tu empresa primero</Text>
+                  </View>
+                ) : (
+                  <View style={styles.materialSelector}>
+                    <Text style={styles.selectorLabel}>Seleccionar Material</Text>
+                    <ScrollView style={styles.materialScroll} showsVerticalScrollIndicator={false}>
+                      <View style={styles.materialGrid}>
+                        {materiales.map((mat) => (
+                          <TouchableOpacity
+                            key={mat.id}
+                            style={[
+                              styles.materialCard,
+                              materialSeleccionado?.id === mat.id && styles.materialCardSelected,
+                            ]}
+                            onPress={() => setMaterialSeleccionado(mat)}
+                          >
+                            <View style={styles.materialIcon}>
+                              <MaterialCommunityIcons name="cube-outline" size={14} color="#6366f1" />
+                            </View>
+                            <Text style={styles.materialName}>{mat.nombre}</Text>
+                            <Text style={styles.materialPrice}>${mat.precioCosto}</Text>
+                            <Text style={styles.materialUnit}>{mat.unidad}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  </View>
+                )}
+
+                {materialSeleccionado && (
+                  <View style={styles.quantitySection}>
+                    <Text style={styles.quantityLabel}>
+                      Cantidad en {materialSeleccionado.unidad}
+                    </Text>
+                    <FloatingLabelInput
+                      label="Cantidad"
+                      value={cantidad}
+                      onChangeText={(text) => {
+                        const valid = /^\d*[.,]?\d*$/;
+                        if (valid.test(text) || text === '') setCantidad(text);
+                      }}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                )}
+              </View>
+
+              {/* Sección de componentes actuales */}
+              <View style={styles.formSection}>
+                <Text style={styles.sectionTitle}>Componentes Actuales</Text>
+                
+                {componentes.length === 0 ? (
+                  <View style={styles.emptyContainer}>
+                    <MaterialCommunityIcons name="puzzle-outline" size={48} color="#94a3b8" />
+                    <Text style={styles.emptyText}>No hay componentes</Text>
+                    <Text style={styles.emptySubtext}>Agrega componentes para calcular el costo</Text>
+                  </View>
+                ) : (
+                  <ScrollView style={styles.componentScroll} showsVerticalScrollIndicator={false}>
+                    <View style={styles.componentGrid}>
+                      {componentes.map((item) => {
+                        const material = materiales.find(m => m.id === item.materialId);
+                        if (!material) return null;
+
+                        return (
+                          <View key={item.id} style={styles.componentCard}>
+                            <View style={styles.componentIcon}>
+                              <MaterialCommunityIcons name="cube-outline" size={16} color="#6366f1" />
+                            </View>
+                            <View style={styles.componentInfo}>
+                              <Text style={styles.componentName}>{material.nombre}</Text>
+                              <Text style={styles.componentDetails}>
+                                {item.cantidad} {material.unidad}
+                              </Text>
+                            </View>
+                            <View style={styles.componentPrice}>
+                              <Text style={styles.priceText}>${material.precioCosto * item.cantidad}</Text>
+                            </View>
+                            <TouchableOpacity 
+                              style={styles.deleteButton}
+                              onPress={() => eliminarComponente(item.id!)}
+                            >
+                              <MaterialCommunityIcons name="trash-can-outline" size={16} color="#ef4444" />
+                            </TouchableOpacity>
+                          </View>
+                        );
+                      })}
                     </View>
                   </ScrollView>
-                </View>
-              )}
-
-              {materialSeleccionado && (
-                <FloatingLabelInput
-                  style={styles.input}
-                  label={`Cantidad en ${materialSeleccionado.unidad}`}
-                  value={cantidad}
-                  onChangeText={(text) => {
-                    const valid = /^\d*[.,]?\d*$/;
-                    if (valid.test(text) || text === '') setCantidad(text);
-                  }}
-                  keyboardType="decimal-pad"
-                />
-              )}
-
-              <Text style={styles.sectionTitle}>Componentes actuales</Text>
-              {componentes.length === 0 ? (
-                <Text style={styles.empty}>No hay componentes agregados</Text>
-              ) : (
-                <View style={styles.componentList}>
-                  {componentes.map((item) => {
-                    const material = materiales.find(m => m.id === item.materialId);
-                    if (!material) return null;
-
-                    return (
-                      <View key={item.id} style={styles.componentCard}>
-                        <View style={styles.componentInfo}>
-                          <Text style={styles.componentName}>{material.nombre}</Text>
-                          <Text style={styles.componentDetails}>
-                            {item.cantidad} {material.unidad} · ${material.precioCosto * item.cantidad}
-                          </Text>
-                        </View>
-                        <TouchableOpacity onPress={() => eliminarComponente(item.id!)}>
-                          <MaterialCommunityIcons name="trash-can-outline" size={20} color="#ef4444" />
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
+                )}
+              </View>
             </ScrollView>
 
-            <TouchableOpacity
-              style={[styles.button, (!materialSeleccionado || !cantidad) && styles.buttonDisabled]}
-              onPress={agregarComponente}
-              disabled={!materialSeleccionado || !cantidad}
-            >
-              <Text style={styles.buttonText}>Agregar Componente</Text>
-            </TouchableOpacity>
-          </KeyboardAvoidingView>
-        </View>
+            {/* Footer con botón moderno */}
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonSecondary]}
+                onPress={onClose}
+              >
+                <MaterialCommunityIcons name="close" size={24} color="#64748b" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonPrimary, (!materialSeleccionado || !cantidad) && styles.modalButtonDisabled]}
+                onPress={agregarComponente}
+                disabled={!materialSeleccionado || !cantidad}
+              >
+                <MaterialCommunityIcons name="plus" size={24} color="#ffffff" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
       {toast && (
         <CustomToast

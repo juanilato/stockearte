@@ -70,6 +70,12 @@ export default function ProductoItem({ producto, onEdit, onDelete, onComponentes
     ? (parseFloat(producto.precioVenta.toString()) - parseFloat(producto.precioCosto.toString())).toFixed(2)
     : '0.00';
 
+  const margenPorcentaje = producto.precioVenta && producto.precioCosto && producto.precioCosto > 0
+    ? ((parseFloat(producto.precioVenta.toString()) - parseFloat(producto.precioCosto.toString())) / parseFloat(producto.precioCosto.toString()) * 100).toFixed(1)
+    : '0';
+
+  const stockStatus = producto.stock <= 5 ? 'critical' : producto.stock <= 15 ? 'low' : 'good';
+
   return (
     <View style={styles.productoWrapper}>
       <Swipeable
@@ -86,18 +92,43 @@ export default function ProductoItem({ producto, onEdit, onDelete, onComponentes
         leftThreshold={40}
       >
         <View style={styles.productoCard}>
-          <View style={styles.row}>
-            <View style={styles.iconBox}>
-              <MaterialCommunityIcons name="package-variant" size={22} color="#64748b" />
+          <View style={styles.headerRow}>
+            <View style={styles.iconContainer}>
+              <MaterialCommunityIcons name="package-variant" size={24} color="#6366f1" />
             </View>
-            <View style={styles.infoBox}>
+            <View style={styles.titleContainer}>
               <Text style={styles.nombre}>{producto.nombre}</Text>
-              <Text style={styles.stock}>Stock: {producto.stock} unidades</Text>
+              <View style={styles.badgeContainer}>
+                <View style={[styles.stockBadge, styles[`stockBadge${stockStatus}`]]}>
+                  <MaterialCommunityIcons 
+                    name={stockStatus === 'critical' ? 'alert-circle' : stockStatus === 'low' ? 'alert' : 'check-circle'} 
+                    size={12} 
+                    color={stockStatus === 'critical' ? '#ffffff' : stockStatus === 'low' ? '#ffffff' : '#ffffff'} 
+                  />
+                  <Text style={styles.stockBadgeText}>{producto.stock}</Text>
+                </View>
+              </View>
             </View>
-            <View style={styles.priceBox}>
-              <Text style={styles.venta}>${producto.precioVenta}</Text>
-              <Text style={styles.costo}>${producto.precioCosto}</Text>
-              <Text style={styles.margen}>${margen}</Text>
+          </View>
+          
+          <View style={styles.detailsRow}>
+            <View style={styles.priceContainer}>
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>Venta</Text>
+                <Text style={styles.venta}>${producto.precioVenta}</Text>
+              </View>
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>Costo</Text>
+                <Text style={styles.costo}>${producto.precioCosto}</Text>
+              </View>
+            </View>
+            
+            <View style={styles.marginContainer}>
+              <Text style={styles.marginLabel}>Margen</Text>
+              <View style={styles.marginValueContainer}>
+                <Text style={styles.margen}>${margen}</Text>
+                <Text style={styles.margenPorcentaje}>({margenPorcentaje}%)</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -108,107 +139,190 @@ export default function ProductoItem({ producto, onEdit, onDelete, onComponentes
 
 const styles = StyleSheet.create({
   productoWrapper: {
-    marginHorizontal: 12,
-    marginBottom: 10,
+    marginHorizontal: 16,
+    marginBottom: 12,
   },
   productoCard: {
-    backgroundColor: '#f8fafc', // light
-    borderRadius: 14,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#e2e8f0', // subtle border
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    justifyContent: 'center',
+    borderColor: '#f1f5f9',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  row: {
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 16,
   },
-  iconBox: {
-    width: 38,
-    height: 38,
-    borderRadius: 8,
-    backgroundColor: '#e2e8f0',
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#f0f9ff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 16,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  infoBox: {
+  titleContainer: {
     flex: 1,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   nombre: {
-    fontSize: wp('4.2%'),
-    fontWeight: '500',
-    color: '#334155',
-    marginBottom: 2,
+    fontSize: wp('4.5%'),
+    fontWeight: '700',
+    color: '#0f172a',
+    flex: 1,
+    marginRight: 12,
   },
-  stock: {
-    fontSize: wp('3.3%'),
-    color: '#64748b',
-    fontWeight: '400',
-  },
-  priceBox: {
+  badgeContainer: {
     alignItems: 'flex-end',
-    minWidth: 70,
+  },
+  stockBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 32,
+    justifyContent: 'center',
+  },
+  stockBadgecritical: {
+    backgroundColor: '#ef4444',
+  },
+  stockBadgelow: {
+    backgroundColor: '#f59e0b',
+  },
+  stockBadgegood: {
+    backgroundColor: '#10b981',
+  },
+  stockBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginLeft: 4,
+  },
+  detailsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  priceContainer: {
+    flex: 1,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  priceLabel: {
+    fontSize: wp('3.2%'),
+    color: '#64748b',
+    fontWeight: '500',
   },
   venta: {
-    fontSize: wp('4%'),
-    fontWeight: '600',
+    fontSize: wp('4.2%'),
+    fontWeight: '700',
     color: '#0ea5e9',
   },
   costo: {
-    fontSize: wp('3.5%'),
+    fontSize: wp('3.8%'),
     color: '#64748b',
-    fontWeight: '400',
-    marginTop: 2,
+    fontWeight: '500',
+  },
+  marginContainer: {
+    alignItems: 'flex-end',
+    minWidth: 80,
+  },
+  marginLabel: {
+    fontSize: wp('3.2%'),
+    color: '#64748b',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  marginValueContainer: {
+    alignItems: 'flex-end',
   },
   margen: {
-    fontSize: wp('3.5%'),
+    fontSize: wp('4%'),
     color: '#10b981',
-    fontWeight: '400',
+    fontWeight: '700',
+  },
+  margenPorcentaje: {
+    fontSize: wp('3%'),
+    color: '#10b981',
+    fontWeight: '500',
     marginTop: 2,
   },
   // Swipe actions
   quickActionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#f8fafc',
     height: '100%',
-    paddingRight: 8,
-    borderTopRightRadius: 14,
-    borderBottomRightRadius: 14,
+    paddingRight: 12,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: -2, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   quickAction: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 4,
-    borderRadius: 8,
+    marginLeft: 8,
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   quickEdit: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#ffffff',
   },
   quickDelete: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#ffffff',
   },
   quickActionsContainerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#f8fafc',
     height: '100%',
-    paddingLeft: 8,
-    borderTopLeftRadius: 14,
-    borderBottomLeftRadius: 14,
+    paddingLeft: 12,
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   quickComponentes: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#ffffff',
   },
   quickVariantes: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#ffffff',
   },
   quickBarcode: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#ffffff',
   },
 }); 
