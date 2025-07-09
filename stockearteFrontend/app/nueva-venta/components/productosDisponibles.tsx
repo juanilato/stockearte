@@ -2,7 +2,9 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Producto } from '../../../services/db';
+// import { Producto } from '../../../services/db';
+// Ahora importamos el tipo Producto desde la API real:
+import { Producto } from '../../../services/api';
 
 interface Props {
   productos: Producto[];

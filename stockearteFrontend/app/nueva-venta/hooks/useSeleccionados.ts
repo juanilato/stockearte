@@ -1,7 +1,8 @@
 // hooks/useNuevaVenta/useSeleccionados.ts
 import { useMemo, useState } from 'react';
 import { Alert } from 'react-native';
-import { Producto, VarianteProducto } from '../../../services/db';
+// Ahora importamos los tipos desde la API real:
+import { Producto, VarianteProducto } from '../../../services/api';
 
 export interface ProductoSeleccionado extends Producto {
   cantidad: number;

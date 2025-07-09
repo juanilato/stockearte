@@ -8,12 +8,12 @@ import {
   Platform,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import FloatingLabelInput from '../../../components/FloatingLabel';
 import { useProductos } from '../hooks';
 import { useVariantes } from '../hooks/useVariantes';
 import { colors } from '../../styles/theme';
@@ -148,29 +148,29 @@ export default function ModalGestionProductos({ visible, onClose, productosPreca
         </View>
         <View style={styles.inputsRow}>
           <View style={styles.inputContainer}>
-            <FloatingLabelInput
-              label="Precio Venta"
+            <TextInput
+              style={styles.input}
+              placeholder="Precio Venta"
               value={obtenerValorProducto(item, 'precioVenta')}
               onChangeText={(valor: string) => item.id !== undefined && actualizarProductoLocal(item.id, 'precioVenta', valor)}
-              placeholder="0.00"
               keyboardType="numeric"
             />
           </View>
           <View style={styles.inputContainer}>
-            <FloatingLabelInput
-              label="Precio Costo"
+            <TextInput
+              style={styles.input}
+              placeholder="Precio Costo"
               value={obtenerValorProducto(item, 'precioCosto')}
               onChangeText={(valor: string) => item.id !== undefined && actualizarProductoLocal(item.id, 'precioCosto', valor)}
-              placeholder="0.00"
               keyboardType="numeric"
             />
           </View>
           <View style={styles.inputContainer}>
-            <FloatingLabelInput
-              label={tieneVariantes ? "Stock base" : "Stock"}
+            <TextInput
+              style={styles.input}
+              placeholder={tieneVariantes ? "Stock base" : "Stock"}
               value={obtenerValorProducto(item, 'stock')}
               onChangeText={(valor: string) => item.id !== undefined && actualizarProductoLocal(item.id, 'stock', valor)}
-              placeholder="0"
               keyboardType="numeric"
             />
           </View>
@@ -188,11 +188,11 @@ export default function ModalGestionProductos({ visible, onClose, productosPreca
                       <MaterialCommunityIcons name="pencil" size={16} color="#0ea5e9" style={styles.varianteEditIcon} />
                     )}
                   </View>
-                  <FloatingLabelInput
-                    label="Stock variante"
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Stock variante"
                     value={varianteEditada ? varianteEditada.stock?.toString() : variante.stock.toString()}
                     onChangeText={(valor: string) => actualizarVarianteLocal(variante.id, valor)}
-                    placeholder="0"
                     keyboardType="numeric"
                   />
                 </View>

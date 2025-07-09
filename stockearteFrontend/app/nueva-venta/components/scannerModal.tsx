@@ -3,7 +3,9 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomToast from '../../../components/CustomToast';
-import { Producto, VarianteProducto } from '../../../services/db';
+// import { Producto, VarianteProducto } from '../../../services/db';
+// Ahora importamos los tipos desde la API real:
+import { Producto, VarianteProducto } from '../../../services/api';
 import ModalProducto from '../../productos/components/ModalProducto';
 import ScannerOverlay from '../../productos/components/scannerOverlay';
 import { ToastType } from '../../productos/hooks';
@@ -13,9 +15,11 @@ interface Props {
   productos: Producto[];
   onClose: () => void;
   onBarCodeScanned: (data: { data: string }) => void;
+  // Nueva prop para recibir los productos escaneados al cerrar
+  onProductosEscaneados: (productos: Array<{producto: Producto, cantidad: number, variante?: VarianteProducto}>) => void;
 }
 
-export default function ScannerModal({ visible, productos, onClose, onBarCodeScanned }: Props) {
+export default function ScannerModal({ visible, productos, onClose, onBarCodeScanned, onProductosEscaneados }: Props) {
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
   const [varianteSeleccionada, setVarianteSeleccionada] = useState<VarianteProducto | undefined>(undefined);
   const [mostrarModalProducto, setMostrarModalProducto] = useState(false);
@@ -31,6 +35,13 @@ export default function ScannerModal({ visible, productos, onClose, onBarCodeSca
   const animOpacity = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const [permission, requestPermission] = useCameraPermissions();
+
+  // Limpiar productos escaneados cuando se abre el modal
+  useEffect(() => {
+    if (visible) {
+      setProductosEscaneados([]);
+    }
+  }, [visible]);
 
   useEffect(() => {
     if (visible && !permission?.granted) {
@@ -93,15 +104,19 @@ export default function ScannerModal({ visible, productos, onClose, onBarCodeSca
         setVarianteSeleccionada(variante);
         setModalCantidadVisible(true);
       } else {
-        setProductoSeleccionado({
-          nombre: '',
-          precioCosto: 0,
-          precioVenta: 0,
-          stock: 0,
-          codigoBarras: codigo,
-        } as Producto);
-        setCodigoNoRegistrado(codigo);
-        setMostrarModalProducto(true);
+        // Mostrar toast de producto no registrado en lugar de abrir modal
+        setToast({
+          type: 'error',
+          message: `Producto no registrado: ${codigo}`,
+        });
+        
+        // Limpiar el estado y permitir seguir escaneando
+        setScanned(false);
+        
+        // Limpiar toast después de 3 segundos
+        setTimeout(() => {
+          setToast(null);
+        }, 3000);
       }
     }, 1500);
   };
@@ -110,20 +125,42 @@ export default function ScannerModal({ visible, productos, onClose, onBarCodeSca
     if (productoSeleccionado) {
       const cantidadNum = parseInt(cantidad) || 1;
       
-      // Simplemente cerramos y dejamos que el padre maneje el estado
-      setModalCantidadVisible(false);
+      // Agregar a la lista de productos escaneados
+      const nuevoProductoEscaneado = {
+        producto: productoSeleccionado,
+        cantidad: cantidadNum,
+        variante: varianteSeleccionada
+      };
+      
+      setProductosEscaneados(prev => [...prev, nuevoProductoEscaneado]);
+      
+      // Mostrar toast de confirmación
       setToast({
         type: 'success',
         message: `${productoSeleccionado.nombre} agregado (${cantidadNum})`,
       });
+      
+      // Cerrar modal de cantidad pero NO cerrar el scanner
+      setModalCantidadVisible(false);
+      setCantidad('1');
+      setProductoSeleccionado(null);
+      setVarianteSeleccionada(undefined);
+      setScanned(false);
+      
+      // Limpiar toast después de 2 segundos
       setTimeout(() => {
-        onBarCodeScanned({ data: productoSeleccionado.codigoBarras! });
-        cerrarTodo();
-      }, 300);
+        setToast(null);
+      }, 2000);
     }
   };
 
   const cerrarTodo = () => {
+    // Enviar todos los productos escaneados al componente padre
+    if (productosEscaneados.length > 0) {
+      onProductosEscaneados(productosEscaneados);
+    }
+    
+    // Limpiar todo el estado
     setScanned(false);
     setMostrarModalProducto(false);
     setModalCantidadVisible(false);

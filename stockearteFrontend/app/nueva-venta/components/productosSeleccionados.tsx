@@ -2,17 +2,13 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Producto } from '../../../services/db';
+// import { Producto } from '../../../services/db';
+// Ahora importamos el tipo Producto desde la API real:
+import { Producto } from '../../../services/api';
 import AccionesVenta from './accionesVenta';
 
-interface ProductoSeleccionado extends Producto {
-  cantidad: number;
-  varianteSeleccionada?: {
-    id: number;
-    nombre: string;
-    stock: number;
-  } | null;
-}
+// Usamos la definición de ProductoSeleccionado del hook useSeleccionados
+import { ProductoSeleccionado } from '../hooks/useSeleccionados';
 
 interface Props {
   productosSeleccionados: ProductoSeleccionado[];
@@ -20,7 +16,7 @@ interface Props {
   quitarProducto: (productoId: number, varianteId?: number) => void;
   calcularTotal: () => number;
   calcularGanancia: () => number;
-  onGuardar: () => void; // ← FALTABA ESTO
+  onGuardar: () => void;
   onQR: () => void;
 }
 

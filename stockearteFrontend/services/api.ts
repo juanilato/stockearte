@@ -514,4 +514,35 @@ export const varianteService = {
   },
 };
 
+// Servicios de Venta
+export const saleService = {
+  /**
+   * Registrar una nueva venta en el backend
+   * @param venta - Objeto con los datos de la venta (fecha, totalProductos, precioTotal, ganancia, empresaId?, productos[])
+   * @returns La venta creada (incluyendo los productos asociados)
+   */
+  async create(venta: {
+    fecha: string | Date;
+    totalProductos: number;
+    precioTotal: number;
+    ganancia: number;
+    empresaId?: number;
+    productos: {
+      productoId: number;
+      cantidad: number;
+      precioUnitario: number;
+      ganancia: number;
+      varianteId?: number;
+    }[];
+  }) {
+    try {
+      // Llamada POST al endpoint /sale del backend
+      const response = await api.post('/sale', venta);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Error al registrar la venta');
+    }
+  },
+};
+
 export default empresaService; 

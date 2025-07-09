@@ -6,10 +6,11 @@ import Toast from 'react-native-toast-message';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import AIFloatingButton from '../../components/AIFloatingButton';
-import { obtenerProductoPorCodigo, registrarVenta, setupProductosDB, Venta } from '../../services/db';
+import { productoService, saleService, Producto, VarianteProducto } from '../../services/api';
 import { colors, spacing } from '../../styles/theme';
 import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../../context/AuthContext';
+import { useEmpresa } from '../../context/EmpresaContext';
 import ModalApiKeyMercadoPago from './components/ModalApiKeyMercadoPago';
 import ModalCantidad from './components/modalCantidad';
 import ModalInterpretacionVoz from './components/ModalInterpretacionVoz';
@@ -30,6 +31,7 @@ import { interpretarVoz } from '../../config/backend';
 export default function NuevaVentaView() {
   const { productos, isLoading: isLoadingProductos } = useProductos();
   const { user } = useAuth();
+  const { selectedEmpresa } = useEmpresa();
   const { reproducirCompra } = useSonidos();
   const apikey = undefined; // TODO: Implementar almacenamiento de API key
 
@@ -74,9 +76,10 @@ export default function NuevaVentaView() {
   const [transcript, setTranscript] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  useEffect(() => {
-    setupProductosDB();
-  }, []);
+  // Eliminamos la inicialización de la base local, ya no es necesaria.
+  // useEffect(() => {
+  //   setupProductosDB();
+  // }, []);
 
   useEffect(() => {
     if (scannedData) {
@@ -87,7 +90,9 @@ export default function NuevaVentaView() {
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     setScannerVisible(false);
-    const producto = await obtenerProductoPorCodigo(data);
+    // const producto = await obtenerProductoPorCodigo(data);
+    // Ahora buscamos el producto por código de barras usando la API real:
+    const producto = await productoService.getByBarcode(data);
 
     if (producto) {
       if (producto.variantes && producto.variantes.length > 0) {
@@ -109,11 +114,32 @@ export default function NuevaVentaView() {
   const guardarVenta = async () => {
     if (productosSeleccionados.length === 0) return;
 
-    const venta: Venta = {
+    // Verificar que hay una empresa seleccionada
+    if (!selectedEmpresa?.id) {
+      Alert.alert('Error', 'No hay empresa seleccionada para guardar la venta.');
+      return;
+    }
+
+    // const venta: Venta = {
+    //   fecha: new Date().toISOString(),
+    //   totalProductos: productosSeleccionados.reduce((sum, p) => sum + p.cantidad, 0),
+    //   precioTotal: total,
+    //   ganancia: calcularGanancia(),
+    //   productos: productosSeleccionados.map((p) => ({
+    //     productoId: p.id!,
+    //     cantidad: p.cantidad,
+    //     precioUnitario: p.precioVenta,
+    //     ganancia: (p.precioVenta - p.precioCosto) * p.cantidad,
+    //     varianteId: p.varianteSeleccionada?.id,
+    //   })),
+    // };
+    // Ahora armamos el objeto venta para la API real con empresaId:
+    const venta = {
       fecha: new Date().toISOString(),
       totalProductos: productosSeleccionados.reduce((sum, p) => sum + p.cantidad, 0),
       precioTotal: total,
       ganancia: calcularGanancia(),
+      empresaId: selectedEmpresa.id, // Agregamos el empresaId de la empresa seleccionada
       productos: productosSeleccionados.map((p) => ({
         productoId: p.id!,
         cantidad: p.cantidad,
@@ -124,7 +150,9 @@ export default function NuevaVentaView() {
     };
 
     try {
-      await registrarVenta(venta);
+      // await registrarVenta(venta);
+      // Ahora usamos la API real para registrar la venta:
+      await saleService.create(venta);
       mostrarMensajeFlotante('Venta guardada con éxito');
       reproducirCompra();
       limpiarVenta();
@@ -288,11 +316,20 @@ export default function NuevaVentaView() {
 
   const handleAgregarProductosInterpretados = (productos: any[]) => {
     productos.forEach(producto => {
-      agregarProducto(producto, producto.cantidad);
+      agregarProducto(producto.producto, producto.cantidad, producto.variante);
     });
     setModalInterpretacionVisible(false);
-    setProductosInterpretados([]);
-    setTranscript('');
+  };
+
+  // Nueva función para manejar productos escaneados del ScannerModal
+  const handleProductosEscaneados = (productosEscaneados: Array<{producto: Producto, cantidad: number, variante?: VarianteProducto}>) => {
+    // Agregar todos los productos escaneados a la venta
+    productosEscaneados.forEach(item => {
+      agregarProducto(item.producto, item.cantidad, item.variante);
+    });
+    
+    // Mostrar mensaje de confirmación
+    mostrarMensajeFlotante(`${productosEscaneados.length} productos agregados`);
   };
 
   if (isLoadingProductos) {
@@ -367,6 +404,7 @@ export default function NuevaVentaView() {
         productos={productos}
         onClose={() => setScannerVisible(false)}
         onBarCodeScanned={handleBarCodeScanned}
+        onProductosEscaneados={handleProductosEscaneados}
       />
       <ModalApiKeyMercadoPago
         visible={modalApiKeyVisible}

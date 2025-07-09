@@ -1,33 +1,51 @@
 // hooks/useNuevaVenta/useProductos.ts
-import { useEffect, useState } from 'react';
-import { Producto, obtenerProductos, setupProductosDB } from '../../../services/db';
+import { useEffect, useState, useCallback } from 'react';
+// import { Producto, obtenerProductos, setupProductosDB } from '../../../services/db';
+// Ahora importamos el tipo Producto desde la API real:
+import { Producto, productoService } from '../../../services/api';
+import { useEmpresa } from '../../../context/EmpresaContext';
 
 export const useProductos = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { selectedEmpresa } = useEmpresa();
 
+  // Función para cargar productos de la empresa seleccionada
+  const cargarProductos = useCallback(async () => {
+    console.log('🔄 NuevaVenta: Iniciando carga de productos...');
+    console.log('🏢 Empresa seleccionada:', selectedEmpresa);
+    
+    if (!selectedEmpresa?.id) {
+      console.warn('⚠️ NuevaVenta: No hay empresa seleccionada para cargar productos');
+      setProductos([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      console.log('🌐 NuevaVenta: Llamando a productoService.getAllByEmpresa...');
+      const productosData = await productoService.getAllByEmpresa(selectedEmpresa.id);
+      console.log('✅ NuevaVenta: Productos cargados:', productosData.length);
+      setProductos(productosData);
+    } catch (error) {
+      console.error('❌ NuevaVenta: Error cargando productos:', error);
+      setProductos([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedEmpresa?.id]);
+
+  // Cargar productos cuando cambie la empresa seleccionada
   useEffect(() => {
-    const inicializarDB = async () => {
-      try {
-        await setupProductosDB();
-        await cargarProductos();
-      } catch (error) {
-        console.error('Error al inicializar la base de datos:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    const cargarProductos = async () => {
-      obtenerProductos(setProductos);
-    };
-
-    inicializarDB();
-  }, []);
+    cargarProductos();
+  }, [cargarProductos]);
 
   return {
     productos,
     isLoading,
-    setProductos
+    setProductos,
+    cargarProductos // Exportamos la función para poder recargar si es necesario
   };
 };

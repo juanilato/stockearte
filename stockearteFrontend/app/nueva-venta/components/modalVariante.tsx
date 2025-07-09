@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Producto, VarianteProducto } from '../../../services/db';
+// Ahora importamos los tipos desde la API real:
+import { Producto, VarianteProducto } from '../../../services/api';
 import { borderRadius, colors, shadows, spacing, typography } from '../../styles/theme';
 
 interface Props {
@@ -44,7 +45,8 @@ export default function ModalVariante({
           tipo: 'variante',
           nombre: variante.nombre,
           stock: variante.stock,
-          id: variante.id,
+          // Si variante.id es undefined, usamos un string alternativo:
+          id: variante.id !== undefined ? variante.id : `variante-sin-id-${variante.nombre}`,
           variante,
         });
       }
