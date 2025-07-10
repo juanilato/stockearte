@@ -37,24 +37,21 @@ export default function HeaderIntegrado({
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
             <View style={styles.userInfoContainer}>
-              <View style={styles.avatarContainer}>
-                <MaterialCommunityIcons name="account-circle" size={36} color="#6366f1" />
-              </View>
+
+                <MaterialCommunityIcons name="account-circle" size={30} color="#6366f1" />
+        
               <View style={styles.userTextContainer}>
-                <Text style={styles.welcomeText}>Bienvenido de vuelta</Text>
-                <Text style={styles.userName}>
-                  {user?.email ? user.email.split('@')[0] : 'Usuario'}
-                </Text>
-              </View>
-            </View>
-            
-            {user && (
+              {user && (
               <View style={styles.selectorContainer}>
                 <EmpresaSelector
                   userId={user.id}
                 />
               </View>
             )}
+              </View>
+            </View>
+            
+
           </View>
           
           <View style={styles.headerRight}>
@@ -128,6 +125,7 @@ const styles = StyleSheet.create({
   userInfoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+
     marginBottom: 16,
   },
   avatarContainer: {
@@ -143,6 +141,7 @@ const styles = StyleSheet.create({
   },
   userTextContainer: {
     flex: 1,
+    marginLeft: 10,
   },
   welcomeText: {
     fontSize: 14,

@@ -27,12 +27,14 @@ export default function EstadisticasCard({
       onPress={onPress}
       activeOpacity={0.95}
     >
-      <View style={[styles.iconContainer, { backgroundColor: `${color}20` }]}>
-        <MaterialCommunityIcons name={icon as any} size={26} color={color} />
+      <View style={styles.cardHeader}>
+        <View style={[styles.iconContainer, { backgroundColor: `${color}15` }]}>
+          <MaterialCommunityIcons name={icon as any} size={20} color={color} />
+        </View>
+        <Text style={styles.label}>{label}</Text>
       </View>
 
       <Text style={styles.value}>{value}</Text>
-      <Text style={styles.label}>{label}</Text>
       
       {children && (
         <View style={styles.childrenContainer}>
@@ -46,46 +48,48 @@ export default function EstadisticasCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#ffffff',
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 16,
     width: '47%',
-    alignItems: 'flex-start',
-    shadowColor: '#94a3b8',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#f1f5f9',
   },
   cardPressable: {
-    transform: [{ scale: 0.99 }],
+    transform: [{ scale: 0.98 }],
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
   },
   value: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#1e293b',
-    textAlign: 'left',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   label: {
-    fontSize: 13,
-    color: '#475569',
-    textAlign: 'left',
+    fontSize: 12,
+    color: '#64748b',
     fontWeight: '500',
-    lineHeight: 18,
+    flex: 1,
+    marginLeft: 8,
   },
   childrenContainer: {
     marginTop: 12,
     width: '100%',
-
   },
 }); 

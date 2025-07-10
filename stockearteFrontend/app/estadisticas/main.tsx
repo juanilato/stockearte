@@ -22,7 +22,7 @@ export default function EstadisticasView() {
   const [isLoading, setIsLoading] = useState(true);
   const [mostrarConfiguracion, setMostrarConfiguracion] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
 
   const { selectedEmpresa, loading: empresaLoading, empresas } = useEmpresa();
   const { estadisticas, cargarEstadisticas } = useEstadisticas();
@@ -31,10 +31,6 @@ export default function EstadisticasView() {
   const { productosCriticos, mostrarStockCritico, setMostrarStockCritico, cargarProductosCriticos } = useProductosCriticos();
   const { metricasAvanzadas, cargarMetricasAvanzadas } = useMetricasAvanzadas();
   const { configuracion, actualizarConfiguracion, restablecerConfiguracion } = useConfiguracionEstadisticas();
-
-
-  
-
 
   useEffect(() => {
     const inicializar = async () => {
@@ -54,12 +50,12 @@ export default function EstadisticasView() {
         Animated.parallel([
           Animated.timing(fadeAnim, {
             toValue: 1,
-            duration: 500,
+            duration: 600,
             useNativeDriver: true,
           }),
           Animated.timing(slideAnim, {
-            toValue: 1,
-            duration: 500,
+            toValue: 0,
+            duration: 600,
             useNativeDriver: true,
           }),
         ]).start();
@@ -82,7 +78,7 @@ export default function EstadisticasView() {
     );
   }
 
-  // Mostrar mensaje si no hay empresa seleccionada (debe ir antes que las estadísticas)
+  // Mostrar mensaje si no hay empresa seleccionada
   if (!selectedEmpresa) {
     return (
       <View style={styles.loadingContainer}>
@@ -113,7 +109,7 @@ export default function EstadisticasView() {
     );
   }
 
-  // Mostrar mensaje si no hay estadísticas (no hay ventas)
+  // Mostrar mensaje si no hay estadísticas
   if (!estadisticas || (estadisticas.ventasTotales === 0 && estadisticas.stockTotal === 0)) {
     return (
       <View style={styles.loadingContainer}>
@@ -130,10 +126,17 @@ export default function EstadisticasView() {
   }
 
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+    <Animated.View 
+      style={[
+        styles.container, 
+        { 
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }]
+        }
+      ]}
+    >
       <EstadisticasHeader onConfigurar={() => setMostrarConfiguracion(true)} />
 
-      {/* Contenido principal */}
       <ScrollView
         style={styles.content}
         contentContainerStyle={{ paddingBottom: 100 }} 

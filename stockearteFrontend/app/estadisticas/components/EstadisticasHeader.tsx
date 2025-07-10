@@ -10,15 +10,25 @@ const EstadisticasHeader: React.FC<EstadisticasHeaderProps> = ({ onConfigurar })
   return (
     <View style={styles.headerWrapper}>
       <View style={styles.headerContainer}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.headerTitle}>Estadísticas</Text>
-          <Text style={styles.headerSubtitle}>Análisis de rendimiento</Text>
+        <View style={styles.titleSection}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.tituloModern}>📊 Estadísticas</Text>
+            <View style={styles.badgeContainer}>
+              <Text style={styles.badgeText}>Analytics</Text>
+            </View>
+          </View>
+          <Text style={styles.subtituloModern}>
+            Análisis de rendimiento
+          </Text>
         </View>
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity style={[styles.actionButton, styles.actionButtonDestacado]} onPress={onConfigurar}>
-            <MaterialCommunityIcons name="cog" size={22} color="#fff" />
-          </TouchableOpacity>
-        </View>
+        
+        <TouchableOpacity
+          style={styles.configButton}
+          onPress={onConfigurar}
+          activeOpacity={0.8}
+        >
+          <MaterialCommunityIcons name="cog" size={20} color="#ffffff" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -26,42 +36,67 @@ const EstadisticasHeader: React.FC<EstadisticasHeaderProps> = ({ onConfigurar })
 
 const styles = StyleSheet.create({
   headerWrapper: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 12,
-    height: 88,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-    zIndex: 10,
+    borderBottomColor: '#f1f5f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  headerTitle: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#1e293b',
+  titleSection: {
+    flex: 1,
   },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#64748b',
-    marginTop: 2,
-  },
-  actionsContainer: {
+  titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
-    borderRadius: 99,
-    padding: 4,
+    marginBottom: 4,
   },
-  actionButton: {
-    padding: 8,
-    borderRadius: 99,
+  tituloModern: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginRight: 8,
   },
-  actionButtonDestacado: {
+  badgeContainer: {
     backgroundColor: '#8b5cf6',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    minWidth: 24,
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  subtituloModern: {
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '400',
+  },
+  configButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#8b5cf6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#8b5cf6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });
 

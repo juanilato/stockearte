@@ -66,7 +66,7 @@ export default function NuevaVentaView() {
   const [productosInterpretados, setProductosInterpretados] = useState<any[]>([]);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
 
   // Estados para el sistema de voz
   const [isRecording, setIsRecording] = useState(false);
@@ -171,8 +171,16 @@ export default function NuevaVentaView() {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { 
+        toValue: 1, 
+        duration: 600, 
+        useNativeDriver: true 
+      }),
+      Animated.timing(slideAnim, { 
+        toValue: 0, 
+        duration: 600, 
+        useNativeDriver: true 
+      }),
     ]).start();
   }, []);
 
@@ -198,138 +206,128 @@ export default function NuevaVentaView() {
       console.log('[VOZ] Grabando...');
     } catch (err) {
       setIsRecording(false);
-      setRecording(null);
-      setAudioUri(null);
-      console.log('[VOZ][ERROR] No se pudo iniciar la grabación:', err);
+      console.error('[VOZ] Error al iniciar grabación:', err);
     }
   };
 
   const stopRecording = async (): Promise<string | null> => {
-    setIsRecording(false);
     if (!recording) return null;
-    await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
-    setAudioUri(uri);
-    setRecording(null);
-    console.log('[VOZ] Grabación detenida. Archivo guardado en:', uri);
-    return uri;
+    try {
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      setRecording(null);
+      setIsRecording(false);
+      return uri;
+    } catch (err) {
+      console.error('[VOZ] Error al detener grabación:', err);
+      setIsRecording(false);
+      return null;
+    }
   };
 
   const uploadAudioToAssemblyAI = async (uri: string, apiKey: string) => {
-    console.log('[VOZ] Subiendo audio a AssemblyAI...');
-    const response = await FileSystem.uploadAsync(
-      'https://api.assemblyai.com/v2/upload',
-      uri,
-      {
-        httpMethod: 'POST',
+    try {
+      const base64Audio = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+      const response = await fetch('https://api.assemblyai.com/v2/upload', {
+        method: 'POST',
         headers: {
-          authorization: apiKey,
+          'authorization': apiKey,
+          'content-type': 'application/json',
         },
-        uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-      }
-    );
-    const data = JSON.parse(response.body);
-    console.log('[VOZ] Audio subido. upload_url:', data.upload_url);
-    return data.upload_url;
+        body: JSON.stringify({ data: base64Audio }),
+      });
+      const result = await response.json();
+      return result.upload_url;
+    } catch (error) {
+      console.error('[VOZ] Error al subir audio:', error);
+      throw error;
+    }
   };
 
   const requestTranscription = async (uploadUrl: string, apiKey: string) => {
-    console.log('[VOZ] Solicitando transcripción a AssemblyAI...');
-    const response = await fetch('https://api.assemblyai.com/v2/transcript', {
-      method: 'POST',
-      headers: {
-        authorization: apiKey,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({ audio_url: uploadUrl, language_code: 'es' }),
-    });
-    const data = await response.json();
-    console.log('[VOZ] Transcripción solicitada. transcript_id:', data.id);
-    return data.id;
+    try {
+      const response = await fetch('https://api.assemblyai.com/v2/transcript', {
+        method: 'POST',
+        headers: {
+          'authorization': apiKey,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          audio_url: uploadUrl,
+          language_code: 'es',
+        }),
+      });
+      const result = await response.json();
+      return result.id;
+    } catch (error) {
+      console.error('[VOZ] Error al solicitar transcripción:', error);
+      throw error;
+    }
   };
 
   const pollTranscription = async (id: string, apiKey: string) => {
-    let completed = false;
-    let text = '';
-    let intentos = 0;
-    console.log('[VOZ] Esperando transcripción de AssemblyAI...');
-    while (!completed) {
-      await new Promise(res => setTimeout(res, 2000));
-      intentos++;
+    try {
       const response = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
-        headers: { authorization: apiKey },
+        headers: {
+          'authorization': apiKey,
+        },
       });
-      const data = await response.json();
-      console.log(`[VOZ] Polling intento ${intentos}: status =`, data.status);
-      if (data.status === 'completed') {
-        completed = true;
-        text = data.text;
-        console.log('[VOZ] Transcripción completada:', text);
-      } else if (data.status === 'error') {
-        completed = true;
-        console.log('[VOZ][ERROR] Error en transcripción:', data.error);
-        throw new Error(data.error);
-      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('[VOZ] Error al consultar transcripción:', error);
+      throw error;
     }
-    return text;
   };
 
   const handleVoiceAssistant = async () => {
-    if (!isRecording && !isProcessing) {
-      // Iniciar grabación
-      await startRecording();
-    } else if (isRecording && !isProcessing) {
-      // Detener grabación y procesar
-      setIsProcessing(true); // Deshabilitar el botón inmediatamente
+    if (isRecording) {
       const uri = await stopRecording();
-      setIsTranscribing(true);
-      try {
-        if (!uri) {
-          console.log('[VOZ][ERROR] No hay audioUri para subir a AssemblyAI');
+      if (uri) {
+        setIsProcessing(true);
+        try {
+          const uploadUrl = await uploadAudioToAssemblyAI(uri, ASSEMBLYAI_API_KEY);
+          const transcriptId = await requestTranscription(uploadUrl, ASSEMBLYAI_API_KEY);
+          
+          let transcriptResult;
+          do {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            transcriptResult = await pollTranscription(transcriptId, ASSEMBLYAI_API_KEY);
+          } while (transcriptResult.status !== 'completed' && transcriptResult.status !== 'error');
+
+          if (transcriptResult.status === 'completed') {
+            setTranscript(transcriptResult.text);
+            const productosInterpretados = await interpretarVoz(transcriptResult.text, productos);
+            setProductosInterpretados(productosInterpretados);
+            setModalInterpretacionVisible(true);
+          } else {
+            Alert.alert('Error', 'No se pudo procesar el audio.');
+          }
+        } catch (error) {
+          console.error('[VOZ] Error en el proceso:', error);
+          Alert.alert('Error', 'No se pudo procesar el audio.');
+        } finally {
           setIsProcessing(false);
-          setIsTranscribing(false);
-          return;
         }
-        const uploadUrl = await uploadAudioToAssemblyAI(uri, ASSEMBLYAI_API_KEY);
-        const transcriptId = await requestTranscription(uploadUrl, ASSEMBLYAI_API_KEY);
-        const text = await pollTranscription(transcriptId, ASSEMBLYAI_API_KEY);
-        setTranscript(text);
-        // --- FLUJO DE INTERPRETACIÓN ---
-        const nombresProductos = productos.map((p) => ({
-          id: p.id,
-          nombre: p.nombre,
-          precioVenta: p.precioVenta,
-          precioCosto: p.precioCosto,
-        }));
-        const data = await interpretarVoz(text, nombresProductos);
-        setProductosInterpretados(data.productos || []);
-        setModalInterpretacionVisible(true);
-        // --- FIN FLUJO DE INTERPRETACIÓN ---
-      } catch (e) {
-        console.log('[VOZ][ERROR] Error en el flujo de voz:', e);
       }
-      setIsTranscribing(false);
-      setAudioUri(null);
-      setIsProcessing(false);
+    } else {
+      await startRecording();
     }
   };
 
   const handleAgregarProductosInterpretados = (productos: any[]) => {
-    productos.forEach(producto => {
-      agregarProducto(producto.producto, producto.cantidad, producto.variante);
+    productos.forEach((p: any) => {
+      if (p.producto && p.cantidad) {
+        agregarProducto(p.producto, p.cantidad, p.variante);
+      }
     });
     setModalInterpretacionVisible(false);
   };
 
-  // Nueva función para manejar productos escaneados del ScannerModal
   const handleProductosEscaneados = (productosEscaneados: Array<{producto: Producto, cantidad: number, variante?: VarianteProducto}>) => {
-    // Agregar todos los productos escaneados a la venta
-    productosEscaneados.forEach(item => {
-      agregarProducto(item.producto, item.cantidad, item.variante);
+    productosEscaneados.forEach(({ producto, cantidad, variante }) => {
+      agregarProducto(producto, cantidad, variante);
     });
-    
-    // Mostrar mensaje de confirmación
-    mostrarMensajeFlotante(`${productosEscaneados.length} productos agregados`);
   };
 
   if (isLoadingProductos) {
@@ -341,19 +339,33 @@ export default function NuevaVentaView() {
   }
 
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+    <Animated.View 
+      style={[
+        styles.container, 
+        { 
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }]
+        }
+      ]}
+    >
       <VentasHeader
         onScan={() => {
-          if (!permission?.granted) {
-            requestPermission();
-          } else {
+          if (permission?.granted) {
             setScannerVisible(true);
+          } else {
+            requestPermission();
           }
         }}
         onVerVentas={() => {}}
+        cantidadProductos={productosSeleccionados.length}
       />
+      
       <View style={styles.content}>
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <ScrollView 
+          style={styles.scrollView} 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <ProductosDisponibles
             productos={productos}
             onAgregar={(producto) => agregarProducto(producto, 1)}
@@ -373,6 +385,7 @@ export default function NuevaVentaView() {
           />
         </ScrollView>
       </View>
+      
       <ModalCantidad
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -457,13 +470,13 @@ export const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: spacing.md,
+    padding: 16,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 80,
+    paddingBottom: 100,
   },
   footer: {
     padding: 16,

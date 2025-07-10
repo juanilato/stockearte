@@ -35,7 +35,12 @@ export default function MetricasRendimiento({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Rendimiento de Ventas</Text>
+      <View style={styles.header}>
+        <Text style={styles.sectionTitle}>Rendimiento de Ventas</Text>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{elementosVisibles.length}</Text>
+        </View>
+      </View>
       
       <View style={styles.cardsContainer}>
         {configuracion.mostrarTicketPromedio && (
@@ -82,11 +87,29 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 24,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#1e293b',
-    marginBottom: 16,
+  },
+  badge: {
+    backgroundColor: '#10b981',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    minWidth: 24,
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   cardsContainer: {
     flexDirection: 'row',
