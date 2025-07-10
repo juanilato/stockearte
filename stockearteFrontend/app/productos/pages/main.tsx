@@ -10,6 +10,7 @@ import {
   ScrollView,
   Text, View, Modal, TouchableOpacity
 } from 'react-native';
+import ModernLoading from '../../../components/ModernLoading';
 
 // Importar los nuevos hooks y tipos del backend
 import { 
@@ -276,13 +277,7 @@ export default function ProductosView() {
 
   // Mostrar loading cuando se están cargando productos o empresa
   if (productosLoading || empresaLoading) {
-
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
-        <MaterialCommunityIcons name="package-variant-closed" size={48} color="#94a3b8" />
-        <Text style={{ fontSize: 16, color: '#64748b', marginTop: 16, fontWeight: '500' }}>Cargando productos...</Text>
-      </View>
-    );
+    return <ModernLoading type="productos" />;
   }
 
   const handleShowBarcode = (producto: Producto) => {

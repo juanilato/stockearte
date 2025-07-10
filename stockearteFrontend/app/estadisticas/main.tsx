@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
+import ModernLoading from '../../components/ModernLoading';
 import { useEmpresa } from '../../context/EmpresaContext';
 import AnalisisInventario from './components/AnalisisInventario';
 import EstadisticasCard from './components/EstadisticasCard';
@@ -70,12 +71,7 @@ export default function EstadisticasView() {
 
   // Mostrar loading mientras se carga la empresa
   if (empresaLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <MaterialCommunityIcons name="chart-line" size={48} color="#94a3b8" />
-        <Text style={styles.loadingText}>Cargando empresa...</Text>
-      </View>
-    );
+    return <ModernLoading type="estadisticas" message="Cargando empresa..." />;
   }
 
   // Mostrar mensaje si no hay empresa seleccionada
@@ -101,12 +97,7 @@ export default function EstadisticasView() {
 
   // Mostrar loading mientras se cargan las estadísticas
   if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <MaterialCommunityIcons name="chart-line" size={48} color="#94a3b8" />
-        <Text style={styles.loadingText}>Cargando estadísticas...</Text>
-      </View>
-    );
+    return <ModernLoading type="estadisticas" />;
   }
 
   // Mostrar mensaje si no hay estadísticas

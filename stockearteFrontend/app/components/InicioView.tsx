@@ -2,7 +2,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState, useRef } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
-import { Material, actualizarMaterial, obtenerEstadisticas, obtenerMateriales, setupProductosDB } from '../../services/db';
+import ModernLoading from '../../components/ModernLoading';
+import { Material, actualizarMaterial, setupProductosDB } from '../../services/db';
 import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../../context/AuthContext';
 import { Empresa } from '../../services/api';
@@ -12,6 +13,9 @@ import ModalEstadisticasDestacadas from './ModalEstadisticasDestacadas';
 import ModalGestionProductos from './ModalGestionProductos';
 import HeaderIntegrado from './HeaderIntegrado';
 import { useProductos } from '../productos/hooks/useProductos';
+import { useEmpresa } from '../../context/EmpresaContext';
+import { useEstadisticas } from '../estadisticas/hooks/useEstadisticas';
+import { useMateriales } from '../materiales/hooks/useMateriales';
 
 interface Usuario {
   nombre: string;
@@ -29,16 +33,17 @@ export default function InicioView() {
   const activitySlideAnim = useRef(new Animated.Value(-40)).current;
   
   const [isLoading, setIsLoading] = useState(true);
-  const [estadisticas, setEstadisticas] = useState<any>(null);
   const { user, logout } = useAuth();
   const router = useRouter();
   const [modalProductosVisible, setModalProductosVisible] = useState(false);
   const [modalEstadisticasVisible, setModalEstadisticasVisible] = useState(false);
   const [modalMaterialesVisible, setModalMaterialesVisible] = useState(false);
-  const [materiales, setMateriales] = useState<Material[]>([]);
   const [selectedEmpresa, setSelectedEmpresa] = useState<Empresa | null>(null);
   
   const { navigateToTab, setShouldOpenScanner } = useNavigation();
+  const { selectedEmpresa: empresaContext, loading: empresaLoading } = useEmpresa();
+  const { estadisticas, cargarEstadisticas } = useEstadisticas();
+  const { materiales } = useMateriales(empresaContext?.id);
 
   // Hook para mantener productos sincronizados con la empresa seleccionada
   useProductos({ empresaId: selectedEmpresa?.id });
@@ -52,12 +57,15 @@ export default function InicioView() {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
+        setIsLoading(true);
         await setupProductosDB();
-        const stats = await obtenerEstadisticas();
-        setEstadisticas(stats);
-        obtenerMateriales(setMateriales);
+        
+        // Cargar estadísticas si hay empresa seleccionada
+        if (empresaContext) {
+          await cargarEstadisticas();
+        }
       } catch (error) {
-        console.error('Error al cargar estadísticas:', error);
+        console.error('Error al cargar datos:', error);
       } finally {
         setIsLoading(false);
       }
@@ -108,7 +116,7 @@ export default function InicioView() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [empresaContext?.id]);
 
   const handleEmpresaChange = (empresa: Empresa) => {
     setSelectedEmpresa(empresa);
@@ -116,15 +124,11 @@ export default function InicioView() {
     console.log('Empresa seleccionada:', empresa);
   };
 
-
-
-
   const handleGuardarPrecios = async (materialesActualizados: Material[]): Promise<{ success: boolean; message: string }> => {
     try {
       for (const material of materialesActualizados) {
         await actualizarMaterial(material);
       }
-      obtenerMateriales(setMateriales);
       return { success: true, message: 'Precios actualizados con éxito' };
     } catch (e) {
       console.error("Error al guardar precios:", e);
@@ -142,11 +146,25 @@ export default function InicioView() {
     router.replace('/login');
   };
 
+  // Mostrar loading mientras se carga la empresa
+  if (empresaLoading) {
+    return <ModernLoading type="inicio" message="Cargando empresa..." />;
+  }
+
+  // Mostrar loading mientras se cargan las estadísticas
   if (isLoading) {
+    return <ModernLoading type="inicio" />;
+  }
+
+  // Mostrar mensaje si no hay empresa seleccionada
+  if (!empresaContext) {
     return (
       <View style={styles.loadingContainer}>
-        <MaterialCommunityIcons name="chart-line" size={48} color="#94a3b8" />
-        <Text style={styles.loadingText}>Cargando datos...</Text>
+        <MaterialCommunityIcons name="office-building" size={48} color="#94a3b8" />
+        <Text style={styles.loadingText}>No hay empresa seleccionada</Text>
+        <Text style={styles.subText}>
+          Selecciona una empresa para ver el dashboard
+        </Text>
       </View>
     );
   }
@@ -205,8 +223,8 @@ export default function InicioView() {
             ]}
           >
             <MetricasHoy 
-              gananciaHoy={estadisticas.gananciaHoy || 0} 
-              ventasHoy={estadisticas.ventasHoy || 0} 
+              gananciaHoy={estadisticas.ganancias?.dia || 0} 
+              ventasHoy={estadisticas.ventasTotales || 0} 
             />
           </Animated.View>
         )}
@@ -295,26 +313,26 @@ export default function InicioView() {
           <View style={styles.statsGrid}>
             <View style={[styles.statCard, styles.statCardGreen]}>
               <MaterialCommunityIcons name="trending-up" size={20} color="#10b981" />
-              <Text style={styles.statValue}>$0</Text>
+              <Text style={styles.statValue}>${estadisticas?.ganancias?.dia?.toFixed(2) || '0.00'}</Text>
               <Text style={styles.statLabel}>Ventas Hoy</Text>
             </View>
             
             <View style={[styles.statCard, styles.statCardBlue]}>
               <MaterialCommunityIcons name="package-variant-closed" size={20} color="#3b82f6" />
-              <Text style={styles.statValue}>0</Text>
+              <Text style={styles.statValue}>{estadisticas?.stockTotal || 0}</Text>
               <Text style={styles.statLabel}>Productos</Text>
             </View>
             
             <View style={[styles.statCard, styles.statCardOrange]}>
               <MaterialCommunityIcons name="basket-outline" size={20} color="#f59e0b" />
-              <Text style={styles.statValue}>0</Text>
+              <Text style={styles.statValue}>{materiales.length}</Text>
               <Text style={styles.statLabel}>Materiales</Text>
             </View>
             
             <View style={[styles.statCard, styles.statCardPurple]}>
               <MaterialCommunityIcons name="chart-bar" size={20} color="#8b5cf6" />
-              <Text style={styles.statValue}>0</Text>
-              <Text style={styles.statLabel}>Reportes</Text>
+              <Text style={styles.statValue}>{estadisticas?.ventasTotales || 0}</Text>
+              <Text style={styles.statLabel}>Ventas Totales</Text>
             </View>
           </View>
         </Animated.View>
@@ -339,7 +357,10 @@ export default function InicioView() {
               <MaterialCommunityIcons name="clock-outline" size={48} color="#94a3b8" />
               <Text style={styles.emptyActivityTitle}>Sin actividad reciente</Text>
               <Text style={styles.emptyActivitySubtitle}>
-                Realiza tu primera venta para ver la actividad aquí
+                {estadisticas?.ventasTotales === 0 
+                  ? 'Realiza tu primera venta para ver la actividad aquí'
+                  : 'No hay actividad reciente para mostrar'
+                }
               </Text>
             </View>
           </View>
@@ -368,7 +389,7 @@ export default function InicioView() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#ffffff',
   },
   scrollView: {
     flex: 1,
@@ -611,11 +632,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#ffffff',
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
     color: '#64748b',
+  },
+  subText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#94a3b8',
+    textAlign: 'center',
   },
 });

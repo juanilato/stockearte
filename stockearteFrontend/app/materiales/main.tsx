@@ -4,6 +4,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CustomToast from '../../components/CustomToast';
 import ModalConfirmacion from '../../components/ModalConfirmacion';
+import ModernLoading from '../../components/ModernLoading';
 import { useEmpresa } from '../../context/EmpresaContext';
 import { setupProductosDB } from '../../services/db';
 import MaterialItem from './components/MaterialItem';
@@ -119,12 +120,7 @@ export default function MaterialesView() {
 
   // Estado de carga inicial (hasta que materiales no este cargado muestra estado de carga)
   if (materialesLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <MaterialCommunityIcons name="basket" size={48} color="#94a3b8" />
-        <Text style={styles.loadingText}>Cargando materiales...</Text>
-      </View>
-    );
+    return <ModernLoading type="materiales" />;
   }
 
   return (

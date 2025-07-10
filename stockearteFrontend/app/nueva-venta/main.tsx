@@ -6,6 +6,7 @@ import Toast from 'react-native-toast-message';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import AIFloatingButton from '../../components/AIFloatingButton';
+import ModernLoading from '../../components/ModernLoading';
 import { productoService, saleService, Producto, VarianteProducto } from '../../services/api';
 import { colors, spacing } from '../../styles/theme';
 import { useNavigation } from '../context/NavigationContext';
@@ -331,11 +332,7 @@ export default function NuevaVentaView() {
   };
 
   if (isLoadingProductos) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Cargando productos...</Text>
-      </View>
-    );
+    return <ModernLoading type="ventas" />;
   }
 
   return (
