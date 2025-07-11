@@ -152,6 +152,32 @@ def interpretar_voz():
         print('Error llamando a Ollama:', str(e))
         return jsonify({'error': 'Error llamando a Ollama', 'details': str(e)}), 500
 
+@app.route('/transcribir-audio', methods=['POST'])
+def transcribir_audio():
+    if 'file' not in request.files:
+        print('[ERROR] No se envió archivo')
+        return jsonify({'error': 'No se envió archivo'}), 400
+    file = request.files['file']
+    import tempfile, os
+    temp_dir = tempfile.gettempdir()
+    temp_path = os.path.join(temp_dir, 'audio.m4a')
+    try:
+        file.save(temp_path)
+        print(f'[DEBUG] Archivo guardado en: {temp_path}')
+        print(f'[DEBUG] Tamaño del archivo guardado: {os.path.getsize(temp_path)} bytes')
+    except Exception as e:
+        print(f'[ERROR] Al guardar el archivo: {e}')
+        return jsonify({'error': f'Error guardando archivo: {e}'}), 500
+    try:
+        import whisper
+        model = whisper.load_model('base')
+        result = model.transcribe(temp_path, language='es')
+        print(f'[DEBUG] Transcripción result: {result}')
+        return jsonify({'text': result['text']})
+    except Exception as e:
+        print('Error transcribiendo audio con Whisper:', str(e))
+        return jsonify({'error': 'Error transcribiendo audio', 'details': str(e)}), 500
+
 if __name__ == '__main__':
     port = get_port()
     launch_ollama()  # Lanzar Ollama automáticamente

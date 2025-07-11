@@ -25,9 +25,44 @@ import { useProductos } from './hooks/useProductos';
 import { useSeleccionados } from './hooks/useSeleccionados';
 import { useSonidos } from './hooks/useSonidos';
 
-// Coloca tu API Key de AssemblyAI aquí:
-const ASSEMBLYAI_API_KEY = 'f25169eacdf54ff0955289f5dd43568f'; // <-- REEMPLAZA AQUÍ
-import { interpretarVoz } from '../../config/backend';
+// Elimino la API Key y funciones de AssemblyAI
+// const ASSEMBLYAI_API_KEY = 'f25169eacdf54ff0955289f5dd43568f'; // <-- REEMPLAZA AQUÍ
+// import { interpretarVoz } from '../../config/backend';
+
+// Nueva función para transcribir usando el backend local
+// Cambia esta IP si usas emulador/dispositivo físico
+const BASE_URL = 'http://192.168.100.10:3000/api/ia'; // <-- Ahora apunta al backend principal
+
+const transcribeAudioWithBackend = async (uri: string) => {
+  console.log('[VOZ] Enviando audio a backend para transcripción:', uri);
+  // Lee el archivo como binario y verifica que existe
+  const fileInfo = await FileSystem.getInfoAsync(uri);
+  if (!fileInfo.exists) {
+    console.error('[VOZ] El archivo de audio no existe:', uri);
+    return undefined;
+  }
+  const fileUri = fileInfo.uri;
+  const fileType = 'audio/m4a'; // o 'audio/wav' según el formato
+
+  const formData = new FormData();
+  // @ts-ignore
+  formData.append('file', {
+    uri: fileUri,
+    name: 'audio.m4a',
+    type: fileType,
+  });
+
+  const response = await fetch(`${BASE_URL}/transcribir-audio`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  const data = await response.json();
+  console.log('[VOZ] Texto transcripto recibido:', data.text);
+  return data.text;
+};
 
 export default function NuevaVentaView() {
   const { productos, isLoading: isLoadingProductos } = useProductos();
@@ -226,60 +261,7 @@ export default function NuevaVentaView() {
     }
   };
 
-  const uploadAudioToAssemblyAI = async (uri: string, apiKey: string) => {
-    try {
-      const base64Audio = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-      const response = await fetch('https://api.assemblyai.com/v2/upload', {
-        method: 'POST',
-        headers: {
-          'authorization': apiKey,
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({ data: base64Audio }),
-      });
-      const result = await response.json();
-      return result.upload_url;
-    } catch (error) {
-      console.error('[VOZ] Error al subir audio:', error);
-      throw error;
-    }
-  };
-
-  const requestTranscription = async (uploadUrl: string, apiKey: string) => {
-    try {
-      const response = await fetch('https://api.assemblyai.com/v2/transcript', {
-        method: 'POST',
-        headers: {
-          'authorization': apiKey,
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          audio_url: uploadUrl,
-          language_code: 'es',
-        }),
-      });
-      const result = await response.json();
-      return result.id;
-    } catch (error) {
-      console.error('[VOZ] Error al solicitar transcripción:', error);
-      throw error;
-    }
-  };
-
-  const pollTranscription = async (id: string, apiKey: string) => {
-    try {
-      const response = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
-        headers: {
-          'authorization': apiKey,
-        },
-      });
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error('[VOZ] Error al consultar transcripción:', error);
-      throw error;
-    }
-  };
+  // Elimino las funciones de AssemblyAI: uploadAudioToAssemblyAI, requestTranscription, pollTranscription
 
   const handleVoiceAssistant = async () => {
     if (isRecording) {
@@ -287,39 +269,25 @@ export default function NuevaVentaView() {
       if (uri) {
         setIsProcessing(true);
         try {
-          const uploadUrl = await uploadAudioToAssemblyAI(uri, ASSEMBLYAI_API_KEY);
-          const transcriptId = await requestTranscription(uploadUrl, ASSEMBLYAI_API_KEY);
-          
-          let transcriptResult;
-          do {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            transcriptResult = await pollTranscription(transcriptId, ASSEMBLYAI_API_KEY);
-          } while (transcriptResult.status !== 'completed' && transcriptResult.status !== 'error');
+          console.log('[VOZ] Audio grabado, iniciando transcripción...');
+          const textoTranscripto = await transcribeAudioWithBackend(uri);
+          setTranscript(textoTranscripto);
 
-          if (transcriptResult.status === 'completed') {
-            setTranscript(transcriptResult.text);
-            // Llamar a Mistral en tu backend para interpretación de voz
-            try {
-              const response = await fetch('http://localhost:5000/interpretar-voz', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  texto: transcriptResult.text,
-                  productos: productos,
-                }),
-              });
-              const data = await response.json();
-              setProductosInterpretados(data.productos || []);
-              setModalInterpretacionVisible(true);
-            } catch (err) {
-              console.error('[VOZ] Error llamando a Mistral:', err);
-              Alert.alert('Error', 'No se pudo interpretar el pedido con IA.');
-            }
-          } else {
-            Alert.alert('Error', 'No se pudo procesar el audio.');
-          }
+          console.log('[VOZ] Enviando texto a interpretación IA:', textoTranscripto);
+          const response = await fetch(`${BASE_URL}/interpretar-voz`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              texto: textoTranscripto,
+              productos: productos,
+            }),
+          });
+          const data = await response.json();
+          console.log('[VOZ] Productos interpretados recibidos:', data.productos);
+          setProductosInterpretados(data.productos || []);
+          setModalInterpretacionVisible(true);
         } catch (error) {
           console.error('[VOZ] Error en el proceso:', error);
           Alert.alert('Error', 'No se pudo procesar el audio.');
@@ -454,6 +422,13 @@ export default function NuevaVentaView() {
         buttonColor={isRecording || isProcessing ? '#fca5a5' : undefined}
         robotColor={isRecording || isProcessing ? '#b91c1c' : undefined}
       />
+      {/* Mostrar la transcripción debajo del botón de IA */}
+      {transcript ? (
+        <View style={{ margin: 16, padding: 12, backgroundColor: '#f1f5f9', borderRadius: 10 }}>
+          <Text style={{ color: '#334155', fontSize: 15, fontWeight: '500' }}>Transcripción:</Text>
+          <Text style={{ color: '#0f172a', fontSize: 16, marginTop: 4 }}>{transcript}</Text>
+        </View>
+      ) : null}
       <ModalInterpretacionVoz
         visible={modalInterpretacionVisible}
         onClose={() => setModalInterpretacionVisible(false)}
