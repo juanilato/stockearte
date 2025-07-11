@@ -126,32 +126,22 @@ export default function ModalPreciosMateriales({
   const renderMaterialItem = ({ item }: { item: MaterialConPrecio }) => {
     const editado = item.precioCostoEditado !== item.precioCosto.toString();
     return (
-      <View style={styles.materialItem}>
-        <View style={styles.materialInfo}>
-          <View style={styles.materialIcon}>
-            <MaterialCommunityIcons name="cube-outline" size={20} color="#f59e0b" />
+      <View style={styles.materialCardModern}>
+        <View style={styles.materialRowModern}>
+          <MaterialCommunityIcons name="cube-outline" size={20} color="#f59e0b" style={{ marginRight: 10 }} />
+          <Text style={styles.materialNameModern} numberOfLines={1}>{item.nombre}</Text>
+          <Text style={styles.materialUnidadModern}>{item.unidad}</Text>
+          <View style={styles.precioContainerModern}>
+            <FloatingLabelInput
+              label="Precio"
+              value={item.precioCostoEditado}
+              onChangeText={(text: string) => actualizarPrecio(item.id!, text)}
+              placeholder="0.00"
+              keyboardType="numeric"
+              style={styles.inputModern}
+            />
           </View>
-          <View style={styles.materialDetails}>
-            <Text style={styles.materialNombre}>{item.nombre}</Text>
-            <Text style={styles.materialUnidad}>{item.unidad}</Text>
-          </View>
-
         </View>
-        <View style={styles.precioContainer}>
-          <FloatingLabelInput
-            label="Precio"
-            value={item.precioCostoEditado}
-            onChangeText={(text: string) => actualizarPrecio(item.id!, text)}
-            placeholder="0.00"
-            keyboardType="numeric"
-          />
-          
-        </View>
-        {editado && (
-            <View style={styles.editIconContainer}>
-              <MaterialCommunityIcons name="square-edit-outline" size={18} color="#f59e0b" />
-            </View>
-          )}
       </View>
     );
   };
@@ -165,70 +155,58 @@ export default function ModalPreciosMateriales({
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalContainer}
         >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <View style={styles.headerInfo}>
-                <Text style={styles.modalTitle}>Editar Precios</Text>
-                <Text style={styles.modalSubtitle}>
-                  {materialesEditables.length} materiales
-                </Text>
+          <View style={styles.modalContentModern}>
+            <View style={styles.modalHeaderModern}>
+              <View style={styles.headerInfoModern}>
+                <Text style={styles.modalTitleModern}>Editar Precios</Text>
+                <Text style={styles.modalSubtitleModern}>{materialesEditables.length} materiales</Text>
               </View>
-              <TouchableOpacity style={styles.closeIcon} onPress={onClose}>
+              <TouchableOpacity style={styles.closeIconModern} onPress={onClose}>
                 <MaterialCommunityIcons name="close" size={24} color={colors.gray[500]} />
               </TouchableOpacity>
             </View>
-
-
-             
-              
             <FlatList
-                data={materialesEditables}
-          
-                style={{ flexGrow: 1 }}
-                contentContainerStyle={[styles.listContainer, { flexGrow: 1 }]}
-                keyExtractor={(item) => item.id?.toString() || ''}
-                renderItem={renderMaterialItem}
-                showsVerticalScrollIndicator={true}
-     
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-                bounces={true}
-                alwaysBounceVertical={false}
-                ListEmptyComponent={
-                  <View style={styles.emptyContainer}>
-                    <MaterialCommunityIcons name="alert-circle" size={48} color="#ef4444" />
-                    <Text style={styles.emptyText}>No hay materiales para mostrar</Text>
-                    <Text style={styles.emptySubtext}>
-                      Materiales recibidos: {materiales.length}
-                    </Text>
-                  </View>
-                }
-              />
-  
-
-            <View style={styles.modalFooter}>
+              data={materialesEditables}
+              style={{ flexGrow: 1 }}
+              contentContainerStyle={[styles.listContainerModern, { flexGrow: 1 }]}
+              keyExtractor={(item) => item.id?.toString() || ''}
+              renderItem={renderMaterialItem}
+              showsVerticalScrollIndicator={false}
+              ItemSeparatorComponent={() => <View style={styles.separatorModern} />}
+              bounces={true}
+              alwaysBounceVertical={false}
+              ListEmptyComponent={
+                <View style={styles.emptyContainerModern}>
+                  <MaterialCommunityIcons name="alert-circle" size={48} color="#ef4444" />
+                  <Text style={styles.emptyTextModern}>No hay materiales para mostrar</Text>
+                  <Text style={styles.emptySubtextModern}>
+                    Materiales recibidos: {materiales.length}
+                  </Text>
+                </View>
+              }
+            />
+            <View style={styles.modalFooterModern}>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonSecondary]}
+                style={[styles.modalButtonModern, styles.modalButtonSecondaryModern]}
                 onPress={onClose}
                 disabled={isLoading}
               >
                 <MaterialCommunityIcons name="close" size={20} color={colors.gray[700]} />
-       
               </TouchableOpacity>
-              
               <TouchableOpacity
                 style={[
-                  styles.modalButton,
-                  styles.modalButtonPrimary,
-                  isLoading && styles.modalButtonDisabled,
+                  styles.modalButtonModern,
+                  styles.modalButtonPrimaryModern,
+                  isLoading && styles.modalButtonDisabledModern,
                 ]}
                 onPress={handleGuardar}
                 disabled={isLoading}
               >
                 <MaterialCommunityIcons name="check-bold" size={20} color="#ffffff" />
-                <Text style={styles.modalButtonText}>
+                <Text style={styles.modalButtonTextModern}>
                   {isLoading ? 'Guardando...' : ''}
                 </Text>
               </TouchableOpacity>
@@ -414,5 +392,157 @@ const styles = StyleSheet.create({
   },
   modalButtonTextSecondary: {
     color: '#64748b',
+  },
+  // Agregar estilos modernos
+  modalContentModern: {
+    width: '100%',
+    maxWidth: wp('92%'),
+    backgroundColor: '#fff',
+    borderRadius: 28,
+    overflow: 'hidden',
+    maxHeight: '88%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 16,
+    marginVertical: 32,
+    alignSelf: 'center',
+  },
+  modalHeaderModern: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 28,
+    paddingVertical: 18,
+    backgroundColor: '#f8fafc',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    elevation: 2,
+    zIndex: 2,
+  },
+  headerInfoModern: {
+    flex: 1,
+  },
+  modalTitleModern: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 2,
+    letterSpacing: 0.2,
+  },
+  modalSubtitleModern: {
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '500',
+  },
+  closeIconModern: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f1f5f9',
+  },
+  listContainerModern: {
+    paddingVertical: 18,
+    gap: 10,
+    paddingHorizontal: 8,
+  },
+  separatorModern: {
+    height: 10,
+  },
+  emptyContainerModern: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyTextModern: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ef4444',
+    marginTop: 16,
+  },
+  emptySubtextModern: {
+    fontSize: 14,
+    color: '#64748b',
+    marginTop: 8,
+  },
+  modalFooterModern: {
+    flexDirection: 'row',
+    paddingHorizontal: 28,
+    paddingVertical: 18,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+    gap: 12,
+    backgroundColor: '#f8fafc',
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+  },
+  modalButtonModern: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    gap: 8,
+  },
+  modalButtonPrimaryModern: {
+    backgroundColor: '#f59e0b',
+  },
+  modalButtonSecondaryModern: {
+    backgroundColor: '#f1f5f9',
+  },
+  modalButtonDisabledModern: {
+    opacity: 0.6,
+  },
+  modalButtonTextModern: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  // Cambios en renderMaterialItem y estilos:
+  materialCardModern: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: 'transparent',
+    borderWidth: 0,
+    elevation: 0,
+  },
+  materialRowModern: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  materialNameModern: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1e293b',
+    flex: 2,
+  },
+  materialUnidadModern: {
+    fontSize: 13,
+    color: '#64748b',
+    flex: 1,
+  },
+  precioContainerModern: {
+    minWidth: 90,
+    marginLeft: 8,
+  },
+  inputModern: {
+    backgroundColor: '#f1f5f9',
+    borderRadius: 10,
+    borderWidth: 0,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginBottom: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  inputModernText: {
+    fontSize: 15,
+    color: '#334155',
   },
 }); 

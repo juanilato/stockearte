@@ -1,10 +1,11 @@
-// Configuración del backend local
+// Configuración del backend local y endpoints de la API
 export const BACKEND_CONFIG = {
-  // URL base del backend local
+  // URL base del backend local (ajustar según IP/puerto de tu backend NestJS)
   BASE_URL: 'http://192.168.100.10:3000/api',
   
   // Endpoints disponibles
   ENDPOINTS: {
+    // --- Auth, Usuarios, Empresas, Productos, etc. ---
     // Autenticación
     AUTH: {
       LOGIN: '/auth/login',
@@ -76,11 +77,11 @@ export const BACKEND_CONFIG = {
       DELETE: '/variante/:id',
     },
     
-    // Interpretación de voz
-    INTERPRETAR_VOZ: '/interpretar-voz',
+    // Interpretación de voz (POST /api/ia/interpretar-voz)
+    INTERPRETAR_VOZ: '/ia/interpretar-voz',
     
-    // Interpretación de archivos (PDF, Excel, Word)
-    INTERPRETAR_ARCHIVO: '/interpretar',
+    // Interpretación de archivos (POST /api/ia/interpretar)
+    INTERPRETAR_ARCHIVO: '/ia/interpretar',
     
     // Estado del modelo de IA
     MODEL_STATUS: '/model-status',
@@ -96,8 +97,7 @@ export const BACKEND_CONFIG = {
       GET_BY_EMPRESA: '/estadisticas/:empresaId',
     },
   },
-  
-  // Configuración del modelo
+  // Configuración del modelo (no se usa directamente en frontend, solo informativo)
   MODEL: {
     NAME: 'llama2:13b',
     TEMPERATURE: 0.1,
@@ -105,12 +105,12 @@ export const BACKEND_CONFIG = {
   }
 };
 
-// Función para obtener URL completa de un endpoint
+// Devuelve la URL completa para un endpoint
 export const getBackendUrl = (endpoint: string): string => {
   return `${BACKEND_CONFIG.BASE_URL}${endpoint}`;
 };
 
-// Función para verificar si el backend está disponible
+// Chequea si el backend está disponible y responde
 export const checkBackendStatus = async (): Promise<boolean> => {
   try {
     const response = await fetch(getBackendUrl('/model-status'));
@@ -122,13 +122,12 @@ export const checkBackendStatus = async (): Promise<boolean> => {
   }
 };
 
-// Función para hacer peticiones al backend
+// Hace una petición genérica al backend (usado internamente)
 export const backendRequest = async (
   endpoint: string, 
   options: RequestInit = {}
 ): Promise<any> => {
   const url = getBackendUrl(endpoint);
-  
   const defaultOptions: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -136,14 +135,11 @@ export const backendRequest = async (
     },
     ...options,
   };
-
   try {
     const response = await fetch(url, defaultOptions);
-    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
     return await response.json();
   } catch (error) {
     console.error(`Error en petición a ${endpoint}:`, error);
@@ -151,7 +147,9 @@ export const backendRequest = async (
   }
 };
 
-// Función específica para interpretar voz
+// Llama al endpoint de interpretación de voz (POST /api/interpretar-voz)
+// Recibe: texto (string), productos (array)
+// Devuelve: respuesta de la IA interpretando el pedido de voz
 export const interpretarVoz = async (texto: string, productos: any[]): Promise<any> => {
   return backendRequest(BACKEND_CONFIG.ENDPOINTS.INTERPRETAR_VOZ, {
     method: 'POST',
@@ -159,13 +157,13 @@ export const interpretarVoz = async (texto: string, productos: any[]): Promise<a
   });
 };
 
-// Función específica para interpretar archivos
+// Llama al endpoint de interpretación de archivos (POST /api/interpretar)
+// Recibe: archivo (File/Blob)
+// Devuelve: respuesta de la IA interpretando el archivo
 export const interpretarArchivo = async (file: any): Promise<any> => {
   const formData = new FormData();
   formData.append('file', file);
-  
   const url = getBackendUrl(BACKEND_CONFIG.ENDPOINTS.INTERPRETAR_ARCHIVO);
-  
   const response = await fetch(url, {
     method: 'POST',
     body: formData,
@@ -173,10 +171,8 @@ export const interpretarArchivo = async (file: any): Promise<any> => {
       'Accept': 'application/json',
     },
   });
-  
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  
   return await response.json();
 }; 

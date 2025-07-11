@@ -44,6 +44,7 @@ export default function InicioView() {
   const { selectedEmpresa: empresaContext, loading: empresaLoading } = useEmpresa();
   const { estadisticas, cargarEstadisticas } = useEstadisticas();
   const { materiales } = useMateriales(empresaContext?.id);
+  const { productos, loading: productosLoading, cargarProductos } = useProductos({ empresaId: empresaContext?.id });
 
   // Hook para mantener productos sincronizados con la empresa seleccionada
   useProductos({ empresaId: selectedEmpresa?.id });
@@ -246,7 +247,7 @@ export default function InicioView() {
           
           <View style={styles.accionesGrid}>
             <TouchableOpacity 
-              style={[styles.accionCard]} 
+              style={[styles.accionCard, { marginRight: 12 }]} 
               onPress={handleNuevaVenta}
               activeOpacity={0.8}
             >
@@ -258,7 +259,7 @@ export default function InicioView() {
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={styles.accionCard} 
+              style={[styles.accionCard, { marginRight: 12 }]} 
               onPress={() => setModalEstadisticasVisible(true)}
               activeOpacity={0.8}
             >
@@ -270,7 +271,7 @@ export default function InicioView() {
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={styles.accionCard} 
+              style={[styles.accionCard, { marginRight: 12 }]} 
               onPress={() => setModalProductosVisible(true)}
               activeOpacity={0.8}
             >
@@ -311,25 +312,25 @@ export default function InicioView() {
           </View>
           
           <View style={styles.statsGrid}>
-            <View style={[styles.statCard, styles.statCardGreen]}>
+            <View style={[styles.statCard, styles.statCardGreen, { marginRight: 12 }]}>
               <MaterialCommunityIcons name="trending-up" size={20} color="#10b981" />
               <Text style={styles.statValue}>${estadisticas?.ganancias?.dia?.toFixed(2) || '0.00'}</Text>
               <Text style={styles.statLabel}>Ventas Hoy</Text>
             </View>
             
-            <View style={[styles.statCard, styles.statCardBlue]}>
+            <View style={[styles.statCard, styles.statCardBlue, { marginRight: 12 }]}>
               <MaterialCommunityIcons name="package-variant-closed" size={20} color="#3b82f6" />
               <Text style={styles.statValue}>{estadisticas?.stockTotal || 0}</Text>
               <Text style={styles.statLabel}>Productos</Text>
             </View>
             
-            <View style={[styles.statCard, styles.statCardOrange]}>
+            <View style={[styles.statCard, styles.statCardOrange, { marginRight: 12 }]}>
               <MaterialCommunityIcons name="basket-outline" size={20} color="#f59e0b" />
               <Text style={styles.statValue}>{materiales.length}</Text>
               <Text style={styles.statLabel}>Materiales</Text>
             </View>
             
-            <View style={[styles.statCard, styles.statCardPurple]}>
+            <View style={[styles.statCard, styles.statCardPurple, { marginRight: 0 }]}>
               <MaterialCommunityIcons name="chart-bar" size={20} color="#8b5cf6" />
               <Text style={styles.statValue}>{estadisticas?.ventasTotales || 0}</Text>
               <Text style={styles.statLabel}>Ventas Totales</Text>
@@ -371,10 +372,12 @@ export default function InicioView() {
       <ModalEstadisticasDestacadas
         visible={modalEstadisticasVisible}
         onClose={() => setModalEstadisticasVisible(false)}
+        estadisticas={estadisticas}
       />
       <ModalGestionProductos
         visible={modalProductosVisible}
         onClose={() => setModalProductosVisible(false)}
+        productosPrecargados={productos}
       />
       <ModalPreciosMateriales
         visible={modalMaterialesVisible}
@@ -473,7 +476,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    gap: 12,
   },
   accionCard: {
     width: '48%',
@@ -483,6 +485,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
+    marginRight: 0, // default
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
@@ -544,7 +547,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    gap: 12,
   },
   statCard: {
     width: '48%',
@@ -554,6 +556,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
+    marginRight: 0, // default
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.06,

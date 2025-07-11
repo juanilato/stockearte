@@ -193,80 +193,64 @@ export default function ModalGestionProductos({ visible, onClose, productosPreca
   const renderProductoItem = ({ item }: { item: Producto }) => {
     const editado = item.id !== undefined && productosEditados[item.id];
     const tieneVariantes = item.variantes && item.variantes.length > 0;
-    const stockBaseEditado = item.id !== undefined && productosEditados[item.id] && productosEditados[item.id].stock !== undefined && productosEditados[item.id].stock !== item.stock;
     return (
-      <View style={styles.itemContainer}>
-        <View style={styles.itemInfoContainer}>
-          <View style={styles.itemIconContainer}>
-            <MaterialCommunityIcons name="package-variant" size={20} color="#0ea5e9" />
-          </View>
-          <View style={styles.itemDetailsContainer}>
-            <Text style={styles.itemNombre}>{item.nombre}</Text>
+      <View style={styles.productCardModern}>
+        <View style={styles.productRowModern}>
+          <MaterialCommunityIcons name="package-variant" size={22} color="#94a3b8" style={{ marginRight: 10 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.productNameModern} numberOfLines={1}>{item.nombre}</Text>
             {item.codigoBarras && (
-              <Text style={styles.itemCodigo}>Código: {item.codigoBarras}</Text>
-            )}
-            {tieneVariantes && (
-              <Text style={styles.itemVariantesInfo}>Este producto tiene variantes. El stock base es independiente.</Text>
+              <Text style={styles.productCodeModern} numberOfLines={1}>Código: {item.codigoBarras}</Text>
             )}
           </View>
-          {(editado || stockBaseEditado) && (
-            <View style={styles.editIconContainer}>
-              <MaterialCommunityIcons name="pencil" size={18} color="#0ea5e9" />
-            </View>
-          )}
         </View>
-        <View style={styles.inputsRow}>
-          <View style={styles.inputContainer}>
+        <View style={styles.inputsRowModern}>
+          <View style={styles.inputContainerModern}>
             <FloatingLabelInput
-              label="Precio Venta"
+              label="Venta"
               value={obtenerValorProducto(item, 'precioVenta')}
               onChangeText={(valor: string) => item.id !== undefined && actualizarProductoLocal(item.id, 'precioVenta', valor)}
               placeholder="0.00"
               keyboardType="numeric"
+              style={styles.inputModern}
             />
           </View>
-          <View style={styles.inputContainer}>
+          <View style={styles.inputContainerModern}>
             <FloatingLabelInput
-              label="Precio Costo"
+              label="Costo"
               value={obtenerValorProducto(item, 'precioCosto')}
               onChangeText={(valor: string) => item.id !== undefined && actualizarProductoLocal(item.id, 'precioCosto', valor)}
               placeholder="0.00"
               keyboardType="numeric"
+              style={styles.inputModern}
             />
           </View>
-          <View style={styles.inputContainer}>
+          <View style={styles.inputContainerModern}>
             <FloatingLabelInput
-              label={tieneVariantes ? "Stock base" : "Stock"}
+              label={tieneVariantes ? "Base" : "Stock"}
               value={obtenerValorProducto(item, 'stock')}
               onChangeText={(valor: string) => item.id !== undefined && actualizarProductoLocal(item.id, 'stock', valor)}
               placeholder="0"
               keyboardType="numeric"
+              style={styles.inputModern}
             />
           </View>
         </View>
         {tieneVariantes && (
-          <View style={styles.variantesListContainer}>
-            {item.variantes!.map((variante) => {
-              const varianteEditada = variantesEditadas[variante.id];
-              const stockEditado = varianteEditada && varianteEditada.stock !== undefined && varianteEditada.stock !== variante.stock;
-              return (
-                <View key={variante.id} style={styles.varianteItemContainer}>
-                  <View style={styles.varianteInfoRow}>
-                    <Text style={styles.varianteNombre}>{variante.nombre}</Text>
-                    {stockEditado && (
-                      <MaterialCommunityIcons name="pencil" size={16} color="#0ea5e9" style={styles.varianteEditIcon} />
-                    )}
-                  </View>
-                  <FloatingLabelInput
-                    label="Stock variante"
-                    value={varianteEditada ? varianteEditada.stock?.toString() : variante.stock.toString()}
-                    onChangeText={(valor: string) => actualizarVarianteLocal(variante.id, valor)}
-                    placeholder="0"
-                    keyboardType="numeric"
-                  />
-                </View>
-              );
-            })}
+          <View style={styles.variantesListModern}>
+            {item.variantes!.map((variante) => (
+              <View key={variante.id} style={styles.varianteRowModern}>
+                <Text style={styles.varianteNameModern}>{variante.nombre}</Text>
+                <FloatingLabelInput
+                  label="Var."
+                  value={variantesEditadas[variante.id]?.stock?.toString() ?? variante.stock.toString()}
+                  onChangeText={(valor: string) => actualizarVarianteLocal(variante.id, valor)}
+                  placeholder="0"
+                  keyboardType="numeric"
+                  style={styles.inputModern}
+                />
+              </View>
+            ))}
           </View>
         )}
       </View>
@@ -285,62 +269,61 @@ export default function ModalGestionProductos({ visible, onClose, productosPreca
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalContainer}
         >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <View style={styles.headerInfo}>
-                <Text style={styles.modalTitle}>Gestión de Productos</Text>
-                <Text style={styles.modalSubtitle}>{productos.length} productos</Text>
+          <View style={styles.modalContentModern}>
+            <View style={styles.modalHeaderModern}>
+              <View style={styles.headerInfoModern}>
+                <Text style={styles.modalTitleModern}>Gestión de Productos</Text>
+                <Text style={styles.modalSubtitleModern}>{productos.length} productos</Text>
               </View>
-              <TouchableOpacity style={styles.closeIcon} onPress={onClose}>
+              <TouchableOpacity style={styles.closeIconModern} onPress={onClose}>
                 <MaterialCommunityIcons name="close" size={24} color={colors.gray[500]} />
               </TouchableOpacity>
             </View>
             <FlatList
               data={productos}
               style={{ flexGrow: 1 }}
-              contentContainerStyle={[styles.listContainer, { flexGrow: 1 }]}
+              contentContainerStyle={[styles.listContainerModern, { flexGrow: 1 }]}
               keyExtractor={(item) => item.id?.toString() || ''}
               renderItem={renderProductoItem}
-              showsVerticalScrollIndicator={true}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
+              showsVerticalScrollIndicator={false}
+              ItemSeparatorComponent={() => <View style={styles.separatorModern} />}
               bounces={true}
               alwaysBounceVertical={false}
               ListEmptyComponent={
-                <View style={styles.emptyContainer}>
+                <View style={styles.emptyContainerModern}>
                   <MaterialCommunityIcons name="alert-circle" size={48} color="#ef4444" />
-                  <Text style={styles.emptyText}>No hay productos para mostrar</Text>
-                  <Text style={styles.emptySubtext}>
+                  <Text style={styles.emptyTextModern}>No hay productos para mostrar</Text>
+                  <Text style={styles.emptySubtextModern}>
                     Productos recibidos: {productos.length}
                   </Text>
                 </View>
               }
             />
-            <View style={styles.modalFooter}>
+            <View style={styles.modalFooterModern}>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonSecondary]}
+                style={[styles.modalButtonModern, styles.modalButtonSecondaryModern]}
                 onPress={onClose}
                 disabled={isSaving}
               >
                 <MaterialCommunityIcons name="close" size={20} color={colors.gray[700]} />
-
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
-                  styles.modalButton,
-                  styles.modalButtonPrimary,
-                  isSaving && styles.modalButtonDisabled,
+                  styles.modalButtonModern,
+                  styles.modalButtonPrimaryModern,
+                  isSaving && styles.modalButtonDisabledModern,
                 ]}
                 onPress={guardarCambios}
                 disabled={isSaving}
               >
                 <MaterialCommunityIcons name="check-bold" size={20} color="#ffffff" />
-                <Text style={styles.modalButtonText}>
+                <Text style={styles.modalButtonTextModern}>
                   {isSaving ? 'Guardando...' : ''}
                 </Text>
               </TouchableOpacity>
             </View>
             {toast && (
-              <View style={{ position: 'absolute', top: 20, left: 0, right: 0, alignItems: 'center', zIndex: 999 }}>
+              <View style={styles.toastModern}>
                 <Text style={{ backgroundColor: toast.type === 'error' ? '#fee2e2' : '#d1fae5', color: toast.type === 'error' ? '#b91c1c' : '#065f46', padding: 10, borderRadius: 8, fontWeight: '600', fontSize: 15 }}>{toast.message}</Text>
               </View>
             )}
@@ -564,6 +547,180 @@ const styles = StyleSheet.create({
   },
   modalButtonTextSecondary: {
     color: '#64748b',
+  },
+  modalContentModern: {
+    width: '100%',
+    maxWidth: wp('92%'),
+    backgroundColor: '#fff',
+    borderRadius: 28,
+    overflow: 'hidden',
+    maxHeight: '88%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 16,
+    marginVertical: 32,
+    alignSelf: 'center',
+  },
+  modalHeaderModern: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 28,
+    paddingVertical: 18,
+    backgroundColor: '#f8fafc',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    elevation: 2,
+    zIndex: 2,
+  },
+  headerInfoModern: {
+    flex: 1,
+  },
+  modalTitleModern: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 2,
+    letterSpacing: 0.2,
+  },
+  modalSubtitleModern: {
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '500',
+  },
+  closeIconModern: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f1f5f9',
+  },
+  listContainerModern: {
+    paddingVertical: 18,
+    gap: 10,
+    paddingHorizontal: 8,
+  },
+  separatorModern: {
+    height: 10,
+  },
+  emptyContainerModern: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyTextModern: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ef4444',
+    marginTop: 16,
+  },
+  emptySubtextModern: {
+    fontSize: 14,
+    color: '#64748b',
+    marginTop: 8,
+  },
+  modalFooterModern: {
+    flexDirection: 'row',
+    paddingHorizontal: 28,
+    paddingVertical: 18,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+    gap: 12,
+    backgroundColor: '#f8fafc',
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+  },
+  modalButtonModern: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    gap: 8,
+  },
+  modalButtonPrimaryModern: {
+    backgroundColor: '#0ea5e9',
+  },
+  modalButtonSecondaryModern: {
+    backgroundColor: '#f1f5f9',
+  },
+  modalButtonDisabledModern: {
+    opacity: 0.6,
+  },
+  modalButtonTextModern: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  toastModern: {
+    position: 'absolute',
+    top: 20,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  productCardModern: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 14,
+    shadowColor: 'transparent',
+    borderWidth: 0,
+    elevation: 0,
+  },
+  productRowModern: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  productNameModern: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  productCodeModern: {
+    fontSize: 12,
+    color: '#94a3b8',
+  },
+  inputsRowModern: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 2,
+  },
+  inputContainerModern: {
+    flex: 1,
+  },
+  inputModern: {
+    backgroundColor: '#f1f5f9',
+    borderRadius: 10,
+    borderWidth: 0,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginBottom: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  inputModernText: {
+    fontSize: 15,
+    color: '#334155',
+  },
+  variantesListModern: {
+    marginTop: 8,
+    gap: 6,
+  },
+  varianteRowModern: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  varianteNameModern: {
+    fontSize: 13,
+    color: '#64748b',
+    flex: 1,
   },
 });
 

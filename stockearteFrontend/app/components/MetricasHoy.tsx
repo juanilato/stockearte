@@ -10,19 +10,22 @@ interface MetricasHoyProps {
 
 const MetricasHoy: React.FC<MetricasHoyProps> = ({ gananciaHoy, ventasHoy }) => {
   return (
-    <View style={styles.container}>
-      <View style={[styles.card, styles.ventasCard]}>
-        <MaterialCommunityIcons name="cash-multiple" size={28} color="#10b981" />
-        <View style={styles.textContainer}>
-          <Text style={styles.label}>Ventas de Hoy</Text>
-          <Text style={styles.value}>${ventasHoy.toFixed(2)}</Text>
+    <View style={styles.containerModern}>
+      <Text style={styles.tituloModern}>Hoy</Text>
+      <View style={styles.cardsRowModern}>
+        <View style={[styles.cardModern, styles.ventasCardModern]}>
+          <MaterialCommunityIcons name="cash-multiple" size={26} color="#10b981" style={{ marginRight: 10 }} />
+          <View style={styles.textContainerModern}>
+            <Text style={styles.labelModern}>Cantidad Venta</Text>
+            <Text style={styles.valueModern}>{ventasHoy}</Text>
+          </View>
         </View>
-      </View>
-      <View style={[styles.card, styles.gananciaCard]}>
-        <MaterialCommunityIcons name="chart-timeline-variant" size={28} color="#3b82f6" />
-        <View style={styles.textContainer}>
-          <Text style={styles.label}>Ganancia de Hoy</Text>
-          <Text style={styles.value}>${gananciaHoy.toFixed(2)}</Text>
+        <View style={[styles.cardModern, styles.gananciaCardModern]}>
+          <MaterialCommunityIcons name="chart-timeline-variant" size={26} color="#3b82f6" style={{ marginRight: 10 }} />
+          <View style={styles.textContainerModern}>
+            <Text style={styles.labelModern}>Ganancia</Text>
+            <Text style={styles.valueModern}>${gananciaHoy.toFixed(2)}</Text>
+          </View>
         </View>
       </View>
     </View>
@@ -30,42 +33,61 @@ const MetricasHoy: React.FC<MetricasHoyProps> = ({ gananciaHoy, ventasHoy }) => 
 };
 
 const styles = StyleSheet.create({
-  container: {
+  containerModern: {
+    marginTop: 18,
+    marginBottom: 4,
+    paddingHorizontal: 8,
+  },
+  tituloModern: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#3b82f6',
+    textAlign: 'center',
+    marginBottom: 12,
+    letterSpacing: 0.2,
+  },
+  cardsRowModern: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    marginTop: 16,
     gap: 16,
   },
-  card: {
+  cardModern: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
+    backgroundColor: '#f8fafc',
+    borderRadius: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    marginBottom: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  ventasCard: {
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    borderColor: 'rgba(16, 185, 129, 0.2)',
+  ventasCardModern: {
+    marginRight: 8,
+    backgroundColor: 'rgba(16, 185, 129, 0.08)',
   },
-  gananciaCard: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderColor: 'rgba(59, 130, 246, 0.2)',
+  gananciaCardModern: {
+    marginLeft: 8,
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
   },
-  textContainer: {
-    marginLeft: 12,
+  textContainerModern: {
+    marginLeft: 8,
   },
-  label: {
+  labelModern: {
     fontSize: RFValue(13),
-    color: '#4b5563',
+    color: '#64748b',
     fontWeight: '500',
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  value: {
-    fontSize: RFValue(18),
+  valueModern: {
+    fontSize: RFValue(20),
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#1e293b',
+    letterSpacing: 0.2,
   },
 });
 

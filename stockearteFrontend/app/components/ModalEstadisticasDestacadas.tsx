@@ -7,17 +7,23 @@ import { colors } from '../../styles/theme';
 interface ModalEstadisticasDestacadasProps {
   visible: boolean;
   onClose: () => void;
+  estadisticas?: any;
 }
 
-export default function ModalEstadisticasDestacadas({ visible, onClose }: ModalEstadisticasDestacadasProps) {
-  const [estadisticas, setEstadisticas] = useState<any>(null);
+export default function ModalEstadisticasDestacadas({ visible, onClose, estadisticas: estadisticasProp }: ModalEstadisticasDestacadasProps) {
+  const [estadisticas, setEstadisticas] = useState<any>(estadisticasProp || null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (visible) {
-      cargarEstadisticas();
+      if (estadisticasProp) {
+        setEstadisticas(estadisticasProp);
+        setIsLoading(false);
+      } else {
+        cargarEstadisticas();
+      }
     }
-  }, [visible]);
+  }, [visible, estadisticasProp]);
 
   const cargarEstadisticas = async () => {
     try {

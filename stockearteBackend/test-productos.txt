@@ -1,0 +1,8 @@
+
+    Lista de Productos:
+    
+    1. Laptop HP Pavilion - Precio: $1200 - Costo: $800 - Stock: 5
+    2. Mouse Logitech - Precio: $25 - Costo: $15 - Stock: 20
+    3. Teclado Mecánico - Precio: $150 - Costo: $100 - Stock: 8
+    4. Monitor Samsung 24" - Precio: $300 - Costo: $200 - Stock: 12
+    
