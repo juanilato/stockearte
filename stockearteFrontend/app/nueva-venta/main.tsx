@@ -298,9 +298,25 @@ export default function NuevaVentaView() {
 
           if (transcriptResult.status === 'completed') {
             setTranscript(transcriptResult.text);
-            const productosInterpretados = await interpretarVoz(transcriptResult.text, productos);
-            setProductosInterpretados(productosInterpretados);
-            setModalInterpretacionVisible(true);
+            // Llamar a Mistral en tu backend para interpretación de voz
+            try {
+              const response = await fetch('http://localhost:5000/interpretar-voz', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  texto: transcriptResult.text,
+                  productos: productos,
+                }),
+              });
+              const data = await response.json();
+              setProductosInterpretados(data.productos || []);
+              setModalInterpretacionVisible(true);
+            } catch (err) {
+              console.error('[VOZ] Error llamando a Mistral:', err);
+              Alert.alert('Error', 'No se pudo interpretar el pedido con IA.');
+            }
           } else {
             Alert.alert('Error', 'No se pudo procesar el audio.');
           }

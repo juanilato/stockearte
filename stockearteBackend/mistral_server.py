@@ -121,31 +121,9 @@ def interpretar_voz():
     data = request.get_json()
     texto = data.get('texto', '')
     productos = data.get('productos', [])
-    
-    # Prompt para interpretar voz y encontrar productos en la base de datos
-    prompt = f"""Eres un asistente de ventas. El cliente dijo: "{texto}"
 
-Tienes acceso a esta base de datos de productos:
-{productos}
-
-Analiza el texto del cliente e identifica qué productos quiere comprar y en qué cantidad.
-Solo devuelve productos que existan EXACTAMENTE en la base de datos.
-Busca coincidencias exactas o muy similares en los nombres.
-
-Responde SOLO con un array JSON de objetos con esta estructura:
-[
-  {{
-    "id": ID_DEL_PRODUCTO_EN_LA_DB,
-    "nombre": "NOMBRE_EXACTO_DEL_PRODUCTO_EN_LA_DB", 
-    "cantidad": CANTIDAD_NUMERICA,
-    "precioVenta": PRECIO_DE_VENTA_DEL_PRODUCTO,
-    "precioCosto": PRECIO_DE_COSTO_DEL_PRODUCTO
-  }}
-]
-
-Si no encuentras productos que coincidan, devuelve array vacío [].
-
-Respuesta (solo JSON):"""
+    # Prompt estricto para interpretación de voz (adaptado de mistral.config.ts)
+    prompt = f"""Eres un asistente de ventas inteligente especializado en interpretación de pedidos. El cliente dijo: \"{texto}\"\n\nBASE DE DATOS DE PRODUCTOS DISPONIBLES:\n{productos}\n\nREGLAS ESTRICTAS:\n1. SOLO devuelve productos que existan EXACTAMENTE en la base de datos\n2. Busca coincidencias exactas o muy similares en los nombres\n3. Extrae las cantidades mencionadas explícitamente\n4. Si no se menciona cantidad, asume 1\n5. Si no encuentras productos que coincidan, devuelve array vacío []\n6. NO inventes productos que no estén en la base de datos\n\nFORMATO DE RESPUESTA REQUERIDO:\n[\n  {{\n    \"id\": ID_DEL_PRODUCTO_EN_LA_DB,\n    \"nombre\": \"NOMBRE_EXACTO_DEL_PRODUCTO_EN_LA_DB\", \n    \"cantidad\": CANTIDAD_NUMERICA,\n    \"precioVenta\": PRECIO_DE_VENTA_DEL_PRODUCTO,\n    \"precioCosto\": PRECIO_DE_COSTO_DEL_PRODUCTO\n  }}\n]\n\nEJEMPLO:\n[{{\"id\": 25, \"nombre\": \"Cachafaz conitos\", \"cantidad\": 2, \"precioVenta\": 500, \"precioCosto\": 300}}]\n\nRESPONDE SOLO CON EL ARRAY JSON, SIN EXPLICACIONES NI COMENTARIOS."""
 
     payload = {
         'model': OLLAMA_MODEL,
@@ -157,7 +135,7 @@ Respuesta (solo JSON):"""
         ollama_response.raise_for_status()
         data = ollama_response.json()
         response_text = data.get('response', '')
-        
+
         # Intentar parsear la respuesta como JSON
         try:
             import json
@@ -169,7 +147,7 @@ Respuesta (solo JSON):"""
         except json.JSONDecodeError:
             print('Error parseando JSON de Mistral:', response_text)
             return jsonify({'productos': [], 'textoOriginal': texto})
-            
+
     except Exception as e:
         print('Error llamando a Ollama:', str(e))
         return jsonify({'error': 'Error llamando a Ollama', 'details': str(e)}), 500
