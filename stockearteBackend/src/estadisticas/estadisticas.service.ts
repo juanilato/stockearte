@@ -36,12 +36,13 @@ export interface EstadisticasResponse {
 export class EstadisticasService {
   constructor(private prisma: PrismaService) {}
 
+  // Get statistics for a specific company
   async getEstadisticasPorEmpresa(empresaId: number): Promise<EstadisticasResponse> {
     const hoy = new Date();
     const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
     const inicioAnio = new Date(hoy.getFullYear(), 0, 1);
 
-    // Obtener todas las ventas de la empresa
+    // Obtain all sales for the company
     const ventas = await this.prisma.venta.findMany({
       where: {
         empresaId: empresaId,
@@ -55,25 +56,25 @@ export class EstadisticasService {
       },
     });
 
-    // Obtener todos los productos de la empresa
+    // Obtain all products for the company
     const productos = await this.prisma.producto.findMany({
       where: {
         empresaId: empresaId,
       },
     });
 
-    // Calcular estadísticas básicas
+    // Total sales, total products sold, and total profit
     const ventasTotales = ventas.length;
     const gananciaTotal = ventas.reduce((sum, venta) => sum + venta.ganancia, 0);
     const productosVendidos = ventas.reduce((sum, venta) => sum + venta.totalProductos, 0);
 
-    // Calcular stock total
+    // Calculate total stock
     const stockTotal = productos.reduce((sum, producto) => sum + producto.stock, 0);
 
-    // Calcular productos en stock crítico (stock <= 5)
+    // Calculate products in critical stock (stock <= 5)
     const productosStockCritico = productos.filter(p => p.stock <= 5).length;
 
-    // Obtener productos críticos para el modal
+    // Obtain critical products for the modal
     const productosCriticos = productos
       .filter(p => p.stock <= 5)
       .map(p => ({
@@ -82,7 +83,7 @@ export class EstadisticasService {
         stock: p.stock,
       }));
 
-    // Calcular ganancias por período
+    // Calculate profits by period
     const ventasHoy = ventas.filter(v => {
       const fechaVenta = new Date(v.fecha);
       return fechaVenta.toDateString() === hoy.toDateString();
@@ -104,7 +105,7 @@ export class EstadisticasService {
       anio: ventasAnio.reduce((sum, v) => sum + v.ganancia, 0),
     };
 
-    // Calcular productos más vendidos
+    // Calculate most sold products
     const productosVendidosMap = new Map<string, number>();
     ventas.forEach(venta => {
       venta.productos.forEach(item => {
@@ -118,7 +119,7 @@ export class EstadisticasService {
       .sort((a, b) => b.cantidad - a.cantidad)
       .slice(0, 5);
 
-    // Calcular producto más rentable
+    // Calculate most profitable product
     const productosConRentabilidad = productos.map(producto => {
       const ventasProducto = ventas.flatMap(v => v.productos)
         .filter(item => item.productoId === producto.id);
@@ -138,7 +139,7 @@ export class EstadisticasService {
         )
       : null;
 
-    // Calcular ventas mensuales (últimos 12 meses)
+    // Calculate monthly sales (last 12 months)
     const ventasMensuales = [];
     for (let i = 11; i >= 0; i--) {
       const fecha = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);

@@ -12,6 +12,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  // Validate user credentials
+  // It checks if the user exists and if the password matches
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.prisma.usuario.findUnique({ where: { email } });
     if (user && (await bcrypt.compare(password, user.password))) {
@@ -22,6 +24,9 @@ export class AuthService {
     return null;
   }
 
+  // Login method
+  // It validates the user credentials and returns a JWT token if valid
+  // It also returns user information without the password
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
@@ -38,22 +43,23 @@ export class AuthService {
     };
   }
 
+  // Social login method
+  // Not implemented yet, but it accepts a SocialLoginDto
   async socialLogin(socialLoginDto: SocialLoginDto) {
-    // Aquí implementarías la validación del token con el proveedor social
-    // Por ahora, simulamos la validación
+
     const userInfo = await this.validateSocialToken(socialLoginDto);
 
-    // Buscar usuario existente o crear uno nuevo
+   
     let user = await this.prisma.usuario.findUnique({
       where: { email: userInfo.email },
     });
 
     if (!user) {
-      // Crear nuevo usuario
+
       user = await this.prisma.usuario.create({
         data: {
           email: userInfo.email,
-          password: '', // No necesitamos password para login social
+          password: '', 
           apikeys: [],
         },
       });
@@ -68,10 +74,9 @@ export class AuthService {
       },
     };
   }
-
+// Validate social token
   private async validateSocialToken(socialLoginDto: SocialLoginDto) {
-    // Aquí implementarías la validación real con cada proveedor
-    // Por ahora, simulamos la respuesta
+
     switch (socialLoginDto.provider) {
       case 'google':
         // Validar con Google API
@@ -96,6 +101,8 @@ export class AuthService {
     }
   }
 
+  // Verify JWT token
+  // It checks if the token is valid and returns user information
   async verifyToken(token: string) {
     try {
       const payload = this.jwtService.verify(token);

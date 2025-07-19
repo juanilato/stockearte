@@ -28,11 +28,11 @@ export interface CreateMaterialAndVarianteDto {
 export class MaterialService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Crear material
+  // Create material
   async create(createMaterialDto: CreateMaterialDto) {
     const { nombre, precioCosto, unidad, stock, empresaId } = createMaterialDto;
     
-    // Verificar que la empresa existe
+    // Verify that the company exists
     const empresa = await this.prisma.empresa.findUnique({
       where: { id: empresaId }
     });
@@ -41,6 +41,8 @@ export class MaterialService {
       throw new Error('Empresa no encontrada');
     }
 
+
+    // Create the material
     const material = await this.prisma.material.create({
       data: {
         nombre,
@@ -54,11 +56,11 @@ export class MaterialService {
     return material;
   }
 
-  // Crear material y asignarlo como variante a un producto
+  // Create material and assign it as a variant to a product
   async createMaterialAndVariante(createData: CreateMaterialAndVarianteDto) {
     const { material, productoId, varianteNombre, varianteStock, varianteCodigoBarras } = createData;
-    
-    // Verificar que el producto existe
+
+    // Verify that the product exists
     const producto = await this.prisma.producto.findUnique({
       where: { id: productoId }
     });
@@ -67,7 +69,7 @@ export class MaterialService {
       throw new Error('Producto no encontrado');
     }
 
-    // Verificar que la empresa existe
+    // Verify that the company exists
     const empresa = await this.prisma.empresa.findUnique({
       where: { id: material.empresaId }
     });
@@ -76,9 +78,9 @@ export class MaterialService {
       throw new Error('Empresa no encontrada');
     }
 
-    // Crear material y variante en una transacción
+    // Create material and variant in a transaction
     const result = await this.prisma.$transaction(async (prisma) => {
-      // 1. Crear el material
+      // 1. Create the material
       const nuevoMaterial = await prisma.material.create({
         data: {
           nombre: material.nombre,
@@ -89,7 +91,7 @@ export class MaterialService {
         },
       });
 
-      // 2. Crear la variante asociada al producto
+      // 2. Create the variant associated with the product
       const nuevaVariante = await prisma.varianteProducto.create({
         data: {
           productoId,
@@ -108,7 +110,7 @@ export class MaterialService {
     return result;
   }
 
-  // Obtener todos los materiales
+  // Get all materials
   async findAll() {
     return this.prisma.material.findMany({
       include: {
@@ -117,7 +119,7 @@ export class MaterialService {
     });
   }
 
-  // Obtener materiales por empresa
+  // Get materials by company
   async findByEmpresa(empresaId: number) {
     return this.prisma.material.findMany({
       where: { empresaId },
@@ -127,7 +129,7 @@ export class MaterialService {
     });
   }
 
-  // Obtener material por ID
+  // Get material by ID
   async findOne(id: number) {
     return this.prisma.material.findUnique({
       where: { id },
@@ -137,7 +139,7 @@ export class MaterialService {
     });
   }
 
-  // Actualizar material
+  // Update material
   async update(id: number, updateMaterialDto: UpdateMaterialDto) {
     const material = await this.prisma.material.findUnique({
       where: { id }
@@ -158,7 +160,7 @@ export class MaterialService {
     return updatedMaterial;
   }
 
-  // Eliminar material
+  // Delete material
   async remove(id: number) {
     const material = await this.prisma.material.findUnique({
       where: { id }

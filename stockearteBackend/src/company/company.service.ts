@@ -29,10 +29,7 @@ export class CompanyService {
 
   // List name and id of the company desired (select between companies)
   findAllFromUser(usuarioId: number) {
-    console.log('=== BACKEND SERVICE: findAllFromUser ===');
-    console.log('UsuarioId recibido:', usuarioId);
-    console.log('Tipo de usuarioId:', typeof usuarioId);
-    
+
     const result = this.prisma.empresa.findMany({
       where: { usuarioId },
       select: {
@@ -42,8 +39,7 @@ export class CompanyService {
       },
     });
     
-    console.log('Query Prisma ejecutada');
-    console.log('Resultado:', result);
+
     return result;
   }
 
@@ -74,6 +70,7 @@ export class CompanyService {
     return this.prisma.empresa.update({ where: { id }, data });
   }
 
+  // Delete company
   remove(id: number) {
     return this.prisma.empresa.delete({ where: { id } });
   }

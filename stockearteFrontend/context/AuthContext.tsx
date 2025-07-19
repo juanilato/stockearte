@@ -29,6 +29,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Verifica si el usuario está autenticado al iniciar
   const checkAuth = async () => {
     try {
       const isAuth = await authService.isAuthenticated();
@@ -46,6 +47,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Funciones de autenticación
+  // logín con email y password
   const login = async (email: string, password: string) => {
     try {
       const response = await authService.login({ email, password });
@@ -55,6 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // register con email y password
   const register = async (email: string, password: string) => {
     try {
       const response = await authService.register({ email, password });
@@ -64,6 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // log-out
   const logout = async () => {
     try {
       await authService.logout();

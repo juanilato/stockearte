@@ -1,7 +1,7 @@
 // Configuración del backend local y endpoints de la API
 export const BACKEND_CONFIG = {
   // URL base del backend local (ajustar según IP/puerto de tu backend NestJS)
-  BASE_URL: 'http://192.168.100.10:3000/api',
+  BASE_URL: 'http://192.168.101.22:3000/api',
   
   // Endpoints disponibles
   ENDPOINTS: {

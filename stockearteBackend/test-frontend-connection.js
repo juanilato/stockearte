@@ -1,14 +1,18 @@
+// Script de prueba para verificar la conexión frontend -> backend
+// Autor: Stockearte
+// ---------------------------------------------
 const fetch = require('node-fetch');
 
+// Función principal para probar endpoints básicos del backend
 async function testFrontendConnection() {
-  console.log('🧪 Probando conexión frontend -> backend...');
+  console.log('🪪 Probando conexión frontend -> backend...');
   
   try {
-    // Probar endpoint básico
+    // Probar endpoint básico (GET /api)
     const response = await fetch('http://localhost:3000/api');
     console.log('✅ Endpoint básico:', response.status, response.statusText);
     
-    // Probar endpoint de interpretación de voz
+    // Probar endpoint de interpretación de voz (POST /api/interpretar-voz)
     const vozResponse = await fetch('http://localhost:3000/api/interpretar-voz', {
       method: 'POST',
       headers: {

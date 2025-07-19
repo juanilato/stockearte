@@ -1,3 +1,7 @@
+# Servidor Flask para IA: integra Whisper (transcripción de audio) y Mistral/Ollama (LLM)
+# Permite extraer productos de archivos y voz, y transcribir audio localmente
+# Autor: Stockearte
+# ---------------------------------------------
 import os
 import sys
 import subprocess
@@ -6,22 +10,25 @@ from flask import Flask, request, jsonify
 import requests
 from io import BytesIO
 
+# Intentar importar librerías para extracción de texto de archivos
 try:
-    from docx import Document
+    from docx import Document  # Para .docx
 except ImportError:
     Document = None
 try:
-    import PyPDF2
+    import PyPDF2  # Para .pdf
 except ImportError:
     PyPDF2 = None
 
 app = Flask(__name__)
 
+# Configuración de Ollama/Mistral
 OLLAMA_URL = os.environ.get('OLLAMA_URL', 'http://localhost:11434/api/generate')
 OLLAMA_MODEL = os.environ.get('OLLAMA_MODEL', 'mistral')
 OLLAMA_CMD = os.environ.get('OLLAMA_CMD', 'ollama')
 OLLAMA_ARGS = os.environ.get('OLLAMA_ARGS', 'run mistral').split()
 
+# Obtener puerto desde argumentos o variable de entorno
 def get_port():
     for i, arg in enumerate(sys.argv):
         if arg == '--port' and i + 1 < len(sys.argv):
@@ -31,6 +38,7 @@ def get_port():
                 pass
     return int(os.environ.get('MISTRAL_PORT', 5000))
 
+# Lanzar Ollama automáticamente si no está corriendo
 def launch_ollama():
     try:
         print(f'Lanzando Ollama: {OLLAMA_CMD} {" ".join(OLLAMA_ARGS)}')
@@ -42,6 +50,7 @@ def launch_ollama():
     except Exception as e:
         print(f'Error lanzando Ollama: {e}')
 
+# Extraer texto de archivos soportados (docx, pdf, txt)
 def extract_text(file):
     filename = file.filename.lower()
     if filename.endswith('.docx') and Document:
@@ -58,6 +67,8 @@ def extract_text(file):
     else:
         return None
 
+# Endpoint: /interpretar
+# Recibe archivo, extrae texto y pide a Mistral/Ollama que devuelva productos en JSON
 @app.route('/interpretar', methods=['POST'])
 def interpretar():
     print('--- LOG FLASK /interpretar ---')
@@ -116,6 +127,8 @@ Respuesta (solo JSON):"""
         print('Error llamando a Ollama:', str(e))
         return jsonify({'error': 'Error llamando a Ollama', 'details': str(e)}), 500
 
+# Endpoint: /interpretar-voz
+# Recibe texto y productos, pide a Mistral/Ollama que devuelva productos interpretados de la voz
 @app.route('/interpretar-voz', methods=['POST'])
 def interpretar_voz():
     data = request.get_json()
@@ -152,6 +165,8 @@ def interpretar_voz():
         print('Error llamando a Ollama:', str(e))
         return jsonify({'error': 'Error llamando a Ollama', 'details': str(e)}), 500
 
+# Endpoint: /transcribir-audio
+# Recibe archivo de audio, lo transcribe usando Whisper local y devuelve el texto
 @app.route('/transcribir-audio', methods=['POST'])
 def transcribir_audio():
     if 'file' not in request.files:
@@ -178,6 +193,7 @@ def transcribir_audio():
         print('Error transcribiendo audio con Whisper:', str(e))
         return jsonify({'error': 'Error transcribiendo audio', 'details': str(e)}), 500
 
+# Main: lanzar Ollama y correr el servidor Flask
 if __name__ == '__main__':
     port = get_port()
     launch_ollama()  # Lanzar Ollama automáticamente

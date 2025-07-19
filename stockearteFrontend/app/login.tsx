@@ -20,15 +20,21 @@ import { useAuth } from '../context/AuthContext';
 const { width, height } = Dimensions.get('window');
 
 export default function SignInScreen() {
+
   const { authenticate, getStoredCredentials, enableBiometricAuth } = useBiometricAuth();
+  // contexto para manejar la autenticación (login)
+
   const { login } = useAuth();
+  // hook para manejar la navegación
   const router = useRouter();
 
+  // Estados del login, (email, password, loading, error)
   const [emailAddress, setEmailAddress] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
 
+  // Función para manejar el login con biometría (no funcional aún)
   const onBiometricLogin = async () => {
     const success = await authenticate();
     console.log("🔐 Autenticación biométrica:", success);
@@ -53,6 +59,7 @@ export default function SignInScreen() {
     }
   };
 
+  // Función para manejar el login con email y password
   const onSignInPress = async () => {
     if (!emailAddress || !password) {
       setError('Por favor completa todos los campos');
@@ -63,9 +70,10 @@ export default function SignInScreen() {
     setError('');
     
     try {
+      // llama al login
       await login(emailAddress, password);
 
-      // 💾 Guardar credenciales para biometría
+      // Guardar credenciales para biometría
       await enableBiometricAuth(emailAddress, password);
 
       router.replace('/');
@@ -76,6 +84,7 @@ export default function SignInScreen() {
     }
   };
 
+  // Función para manejar el login con redes sociales (Google, Apple) no implementada aún
   const handleSocialLogin = async (provider: 'google' | 'apple') => {
     setLoading(true);
     setError('');

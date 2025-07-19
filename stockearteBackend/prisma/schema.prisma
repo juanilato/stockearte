@@ -8,6 +8,16 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// Usuario Register
+// It has: 
+// - id: Int
+// - email: String (unique)
+// Hashed Data:
+// - password: String
+// - apikeys: String[] (array of API keys) 
+// Relationships:
+// - empresa: Empresa[] (one-to-many relationship with Empresa)
+// - estadoPago: EstadoPago? (one-to-one relationship with EstadoPago)
 model Usuario {
   id           Int       @id @default(autoincrement())
   email        String    @unique
@@ -17,6 +27,16 @@ model Usuario {
   estadoPago   EstadoPago?
 }
 
+// Company Register
+// It has:
+// - id: Int
+// - descripcion: String (Description to help user understand the company and help AI understand the context)
+// - nombreEmpresa: String (Name of the company)
+// Relationships:
+// - productos: Producto[] (one-to-many relationship with Producto)
+// - materiales: Material[] (one-to-many relationship with Material)
+// - ventas: Venta[] (one-to-many relationship with Venta)
+// - usuario: Usuario (one-to-one relationship with Usuario, on delete cascade)
 model Empresa {
   id            Int       @id @default(autoincrement())
   descripcion   String
@@ -28,6 +48,13 @@ model Empresa {
   usuarioId     Int       
 }
 
+// Payment status
+// It has:
+// - id: Int
+// - fecha: DateTime (Date of the payment status)
+// Relationships:
+// - usuario: Usuario (one-to-one relationship with Usuario, on delete cascade)
+
 model EstadoPago {
   id        Int      @id @default(autoincrement())
   fecha     DateTime
@@ -35,6 +62,19 @@ model EstadoPago {
   usuarioId Int      @unique
 }
 
+// Product Register
+// It has:
+// - id: Int
+// - nombre: String (Name of the product)
+// - precioCosto: Float (Cost price of the product)
+// - precioVenta: Float (Selling price of the product)
+// - stock: Int (Stock quantity of the product)
+// - codigoBarras: String? (Optional barcode for the product) 
+// Relationships:
+// - empresa: Empresa? (one-to-one relationship with Empresa, optional)
+// - componentes: ComponenteProducto[] (one-to-many relationship with ComponenteProducto)
+// - variantes: VarianteProducto[] (one-to-many relationship with VarianteProducto)
+// - ventas: VentaProducto[] (one-to-many relationship with VentaProducto)
 model Producto {
   id           Int                 @id @default(autoincrement())
   nombre       String
@@ -48,7 +88,15 @@ model Producto {
   variantes    VarianteProducto[]
   ventas       VentaProducto[]
 }
-
+// Material Register
+// It has:
+// - id: Int
+// - nombre: String (Name of the material)
+// - precioCosto: Float (Cost price of the material)
+// - unidad: String (Unit of measurement for the material)
+// - stock: Int (Stock quantity of the material) // Not useful for now, but can be used in the future
+// - empresa: Empresa? (one-to-one relationship with Empresa, optional)
+// - componentes: ComponenteProducto[] (one-to-many relationship with ComponenteProducto)
 model Material {
   id          Int      @id @default(autoincrement())
   nombre      String
@@ -60,6 +108,13 @@ model Material {
   componentes ComponenteProducto[]
 }
 
+// Component Product
+// It has:
+// - id: Int
+// - producto: Producto (one-to-one relationship with Producto, on delete cascade)
+// - material: Material (one-to-one relationship with Material)
+// - cantidad: Float (Quantity of the material used in the product)
+
 model ComponenteProducto {
   id         Int      @id @default(autoincrement())
   producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
@@ -69,6 +124,15 @@ model ComponenteProducto {
   cantidad   Float
 }
 
+// Variant Product
+// It has:
+// - id: Int
+// - producto: Producto (one-to-one relationship with Producto, on delete cascade)
+// - nombre: String (Name of the variant)
+// - stock: Int (Stock quantity of the variant)
+// - codigoBarras: String? (Optional barcode for the variant)
+// Relationships:
+// - ventas: VentaProducto[] (one-to-many relationship with VentaProducto)
 model VarianteProducto {
   id           Int      @id @default(autoincrement())
   producto     Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
@@ -78,7 +142,16 @@ model VarianteProducto {
   codigoBarras String?
   ventas       VentaProducto[]
 }
-
+// Sale Register
+// It has:
+// - id: Int
+// - fecha: DateTime (Date of the sale)
+// - totalProductos: Int (Total number of products sold)
+// - precioTotal: Float (Total price of the sale)
+// - ganancia: Float (Profit from the sale)
+// Relationships:
+// - productos: VentaProducto[] (one-to-many relationship with VentaProducto)
+// - empresa: Empresa? (one-to-one relationship with Empresa, optional)
 model Venta {
   id            Int                @id @default(autoincrement())
   fecha         DateTime
@@ -90,6 +163,19 @@ model Venta {
   empresaId     Int?
 }
 
+// Sale Product
+// It has:
+// - id: Int
+// - venta: Venta (one-to-one relationship with Venta, on delete cascade)
+// - producto: Producto (one-to-one relationship with Producto, on delete cascade)
+// - cantidad: Int (Quantity of the product sold)
+// - precioUnitario: Float (Unit price of the product sold)
+// - ganancia: Float (Profit from the product sold)
+// - variante: VarianteProducto? (one-to-one relationship with VarianteProducto, optional)
+// Relationships:
+// - venta: Venta (one-to-one relationship with Venta, on delete cascade)
+// - producto: Producto (one-to-one relationship with Producto, on delete cascade)
+// - variante: VarianteProducto? (one-to-one relationship with VarianteProducto, optional)
 model VentaProducto {
   id          Int      @id @default(autoincrement())
   venta       Venta    @relation(fields: [ventaId], references: [id])

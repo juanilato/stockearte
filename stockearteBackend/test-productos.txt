@@ -1,3 +1,5 @@
+# Archivo de prueba: lista de productos ficticios para testear la extracción de productos por IA
+# Usado por test-ia.js y endpoints de interpretación de archivos
 
     Lista de Productos:
     

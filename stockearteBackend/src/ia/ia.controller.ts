@@ -9,6 +9,7 @@ import * as FormData from 'form-data';
 export class IaController {
   constructor(private readonly iaService: IaService) {}
 
+  // Endpoint para interpretar archivos (sube un archivo y devuelve el texto interpretado)
   @Post('interpretar')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -18,30 +19,29 @@ export class IaController {
       },
     }),
   )
+  // Método para interpretar un archivo subido
   async interpretarArchivo(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('No se proporcionó ningún archivo');
     }
     
-    console.log('--- LOG CONTROLLER interpretarArchivo ---');
-    console.log('File recibido en controller:', file?.originalname, file?.mimetype, file?.size);
+
     
     return await this.iaService.interpretarArchivo(file);
   }
 
+  // Endpoint para interpretar voz (envía texto y productos disponibles)
+  // Recibe un JSON con el texto y los productos
   @Post('interpretar-voz')
   async interpretarVoz(@Body() body: { texto: string; productos: any[] }) {
     if (!body.texto || !body.productos) {
       throw new BadRequestException('Se requiere texto y productos');
     }
-    
-    console.log('--- LOG CONTROLLER interpretarVoz ---');
-    console.log('Texto recibido:', body.texto);
-    console.log('Productos disponibles:', body.productos.length);
-    
+    // Llama al servicion de IA para interpretar el pedido de voz
     return await this.iaService.interpretarVoz(body.texto, body.productos);
   }
 
+  // Transcribe audio to text using an internal service (open AI whisper)
   @Post('transcribir-audio')
   @UseInterceptors(
     FileInterceptor('file', {

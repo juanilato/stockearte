@@ -36,13 +36,10 @@ export class CompanyController {
   // Get all companies (name and id) to select
   @Get('all/:id')
   findAllFromUser(@Param('id') id: string) {
-    console.log('=== BACKEND: findAllFromUser ===');
-    console.log('ID recibido:', id);
-    console.log('Tipo de ID:', typeof id);
-    console.log('ID convertido a número:', +id);
+
     
     const result = this.companyService.findAllFromUser(+id);
-    console.log('Resultado del servicio:', result);
+
     return result;
   }
 

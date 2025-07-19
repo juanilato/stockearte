@@ -15,11 +15,11 @@ export interface UpdateComponenteDto {
 export class ComponenteService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Crear componente
+  // Create a new component (productoId, materialId, cantidad)
   async create(createComponenteDto: CreateComponenteDto) {
     const { productoId, materialId, cantidad } = createComponenteDto;
     
-    // Verificar que el producto existe
+    // Verify existence of the product
     const producto = await this.prisma.producto.findUnique({
       where: { id: productoId }
     });
@@ -28,7 +28,7 @@ export class ComponenteService {
       throw new Error('Producto no encontrado');
     }
 
-    // Verificar que el material existe
+    // Verify existence of the material
     const material = await this.prisma.material.findUnique({
       where: { id: materialId }
     });
@@ -37,7 +37,8 @@ export class ComponenteService {
       throw new Error('Material no encontrado');
     }
 
-    // Crear el componente
+    // Create component
+    // It connects the product with the material and sets the quantity
     const componente = await this.prisma.componenteProducto.create({
       data: {
         productoId,
@@ -49,13 +50,13 @@ export class ComponenteService {
       },
     });
 
-    // Actualizar el costo del producto
+    // Update product cost
     await this.actualizarCostoProducto(productoId);
 
     return componente;
   }
 
-  // Obtener componentes de un producto
+  // Obtain components of a product
   async findByProducto(productoId: number) {
     return this.prisma.componenteProducto.findMany({
       where: { productoId },
@@ -65,7 +66,7 @@ export class ComponenteService {
     });
   }
 
-  // Obtener componente por ID
+  // Obtain one component by its ID
   async findOne(id: number) {
     return this.prisma.componenteProducto.findUnique({
       where: { id },
@@ -75,7 +76,7 @@ export class ComponenteService {
     });
   }
 
-  // Actualizar componente
+  // Update componente by ID
   async update(id: number, updateComponenteDto: UpdateComponenteDto) {
     const componente = await this.prisma.componenteProducto.findUnique({
       where: { id }
@@ -93,13 +94,13 @@ export class ComponenteService {
       },
     });
 
-    // Actualizar el costo del producto
+    // Update product cost
     await this.actualizarCostoProducto(componente.productoId);
 
     return updatedComponente;
   }
 
-  // Eliminar componente
+  // Deletes component by ID
   async remove(id: number) {
     const componente = await this.prisma.componenteProducto.findUnique({
       where: { id }
@@ -115,13 +116,14 @@ export class ComponenteService {
       where: { id },
     });
 
-    // Actualizar el costo del producto
+    // Update product cost
     await this.actualizarCostoProducto(productoId);
 
     return { success: true };
   }
 
-  // Función privada para actualizar el costo de un producto
+  // Private method to update the product cost based on its components
+  // It calculates the total cost based on the quantity and cost of each material
   private async actualizarCostoProducto(productoId: number) {
     const costoTotal = await this.prisma.componenteProducto.aggregate({
       where: { productoId },
@@ -130,7 +132,7 @@ export class ComponenteService {
       },
     });
 
-    // Obtener el costo total de los materiales
+    // obtain all components of the product with their materials
     const componentes = await this.prisma.componenteProducto.findMany({
       where: { productoId },
       include: {
@@ -143,7 +145,7 @@ export class ComponenteService {
       costoTotalCalculado += componente.cantidad * componente.material.precioCosto;
     }
 
-    // Actualizar el producto
+    // Update the product
     await this.prisma.producto.update({
       where: { id: productoId },
       data: {

@@ -1,12 +1,15 @@
+// Script de prueba para endpoints de IA (interpretar archivo y voz)
+// Autor: Stockearte
+// ---------------------------------------------
 const fs = require('fs');
 const FormData = require('form-data');
 
-// Función para probar la interpretación de archivos
+// Función para probar la interpretación de archivos (envía un archivo de texto al backend)
 async function testInterpretarArchivo() {
   try {
-    console.log('🧪 Probando interpretación de archivos...');
+    console.log('🪪 Probando interpretación de archivos...');
     
-    // Crear un archivo de prueba
+    // Crear un archivo de prueba con productos ficticios
     const testContent = `
     Lista de Productos:
     
@@ -18,6 +21,7 @@ async function testInterpretarArchivo() {
     
     fs.writeFileSync('test-productos.txt', testContent);
     
+    // Enviar archivo al endpoint /api/interpretar
     const formData = new FormData();
     formData.append('file', fs.createReadStream('test-productos.txt'));
     
@@ -42,11 +46,12 @@ async function testInterpretarArchivo() {
   }
 }
 
-// Función para probar la interpretación de voz
+// Función para probar la interpretación de voz (envía texto y productos al backend)
 async function testInterpretarVoz() {
   try {
-    console.log('🧪 Probando interpretación de voz...');
+    console.log('🪪 Probando interpretación de voz...');
     
+    // Productos de ejemplo
     const productos = [
       { id: 1, nombre: "Laptop HP Pavilion", precioVenta: 1200, precioCosto: 800 },
       { id: 2, nombre: "Mouse Logitech", precioVenta: 25, precioCosto: 15 },
@@ -55,6 +60,7 @@ async function testInterpretarVoz() {
     
     const texto = "Quiero comprar 2 laptops HP y un mouse";
     
+    // Enviar datos al endpoint /api/interpretar-voz
     const response = await fetch('http://localhost:3000/api/interpretar-voz', {
       method: 'POST',
       headers: {
@@ -75,7 +81,8 @@ async function testInterpretarVoz() {
   }
 }
 
-// Ejecutar pruebas
+// Ejecutar ambas pruebas secuencialmente
+envía texto y productos al backend
 async function runTests() {
   console.log('🚀 Iniciando pruebas de IA...\n');
   
