@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, TouchableOpacity, View } from 'react-native';
-import CustomToast from '../../../components/CustomToast';
+import CustomToast from '../../components/CustomToast';
 import { Producto, VarianteProducto } from '../../../services/api';
 import { ToastType } from '../hooks';
 import ModalProducto from './ModalProducto';

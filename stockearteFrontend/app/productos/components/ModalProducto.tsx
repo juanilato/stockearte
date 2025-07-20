@@ -13,8 +13,8 @@ import {
   View,
   ActivityIndicator
 } from 'react-native';
-import CustomToast from '../../../components/CustomToast';
-import FloatingLabelInput from '../../../components/FloatingLabel';
+import CustomToast from '../../components/CustomToast';
+import FloatingLabelInput from '../../components/FloatingLabel';
 import { Producto, VarianteProducto } from '../../../services/api';
 import { colors } from '../../styles/theme';
 import { styles } from '../styles/modals/ModalProducto.styles';

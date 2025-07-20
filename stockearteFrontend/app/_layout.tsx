@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { EmpresaProvider } from '../context/EmpresaContext';
-import { NavigationProvider } from './context/NavigationContext';
+import { NavigationProvider } from '../context/NavigationContext';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 const InitialLayout = () => {

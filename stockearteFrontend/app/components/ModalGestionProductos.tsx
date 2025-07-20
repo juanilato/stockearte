@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import FloatingLabelInput from '../../components/FloatingLabel';
-import { actualizarProducto, actualizarVariante, getDb, obtenerProductos, Producto } from '../../services/db';
+// import { actualizarProducto, actualizarVariante, getDb, obtenerProductos, Producto } from '../../services/db';
 import { colors } from '../../styles/theme';
 
 interface ModalGestionProductosProps {

@@ -10,7 +10,7 @@ import {
   ScrollView,
   Text, View, Modal, TouchableOpacity
 } from 'react-native';
-import ModernLoading from '../../../components/ModernLoading';
+import ModernLoading from '../../components/ModernLoading';
 
 // Importar los nuevos hooks y tipos del backend
 import { 
@@ -23,9 +23,9 @@ import { useEmpresa } from '../../../context/EmpresaContext';
 import { commonStyles } from '../../styles/theme';
 
 
-import ModalConfirmacion from '@/components/ModalConfirmacion';
+import ModalConfirmacion from '../../components/ModalConfirmacion';
 
-import CustomToast from '../../../components/CustomToast';
+import CustomToast from '../../components/CustomToast';
 
 import ModalBarCode from '../components/ModalBarCode';
 import ModalComponentes from '../components/ModalComponentes';
@@ -38,7 +38,7 @@ import BarcodeSVG from '../components/BarcodeSVG';
 
 // Importar funciones separadas
 import ModalGestionProductos from '../components/ModalGestionProductos';
-import AIFloatingButton from '@/components/AIFloatingButton';
+import AIFloatingButton from '../../components/AIFloatingButton';
 import { interpretarArchivo } from '../../../config/backend';
 
 export default function ProductosView() {

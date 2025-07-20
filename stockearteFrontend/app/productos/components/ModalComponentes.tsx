@@ -1,7 +1,7 @@
 // Modal para gestionar los componentes (materiales) asociados a un producto.
 // Permite agregar, editar y eliminar componentes de un producto.
-import CustomToast from '@/components/CustomToast';
-import FloatingLabelInput from '@/components/FloatingLabel';
+import CustomToast from '../../components/CustomToast';
+import FloatingLabelInput from '../../components/FloatingLabel';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {

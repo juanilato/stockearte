@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { obtenerEstadisticas } from '../../services/db';
+// import { obtenerEstadisticas } from '../../services/db';
 import { colors } from '../../styles/theme';
 
 interface ModalEstadisticasDestacadasProps {
@@ -28,8 +28,9 @@ export default function ModalEstadisticasDestacadas({ visible, onClose, estadist
   const cargarEstadisticas = async () => {
     try {
       setIsLoading(true);
-      const stats = await obtenerEstadisticas();
-      setEstadisticas(stats);
+      // TODO: Implementar obtención de estadísticas desde el backend
+      console.log('Cargando estadísticas desde el backend...');
+      setEstadisticas(estadisticasProp || {});
     } catch (error) {
       console.error('Error al cargar estadísticas:', error);
     } finally {

@@ -21,8 +21,8 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import NuevaVentaView from '../app/nueva-venta/main';
 import ProductosView from '../app/productos/pages/main';
-import InicioView from './components/InicioView';
-import { NavigationProvider, useNavigation } from './context/NavigationContext';
+import InicioView from './inicio/page';
+import { NavigationProvider, useNavigation } from '../context/NavigationContext';
 import EstadisticasView from './estadisticas/main';
 import MaterialesView from './materiales/main';
 

@@ -1,7 +1,7 @@
 // Modal para gestionar las variantes de un producto (agregar, editar, eliminar variantes).
 // Permite seleccionar y modificar variantes asociadas a un producto.
-import CustomToast from '@/components/CustomToast';
-import FloatingLabelInput from '@/components/FloatingLabel';
+import CustomToast from '../../components/CustomToast';
+import FloatingLabelInput from '../../components/FloatingLabel';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {

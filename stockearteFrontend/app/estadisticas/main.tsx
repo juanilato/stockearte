@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
-import ModernLoading from '../../components/ModernLoading';
+import ModernLoading from '../components/ModernLoading';
 import { useEmpresa } from '../../context/EmpresaContext';
 import AnalisisInventario from './components/AnalisisInventario';
 import EstadisticasCard from './components/EstadisticasCard';
