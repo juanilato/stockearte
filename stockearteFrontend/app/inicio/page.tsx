@@ -10,7 +10,7 @@ import { Empresa } from '../../services/api';
 import ModalPreciosMateriales from '../materiales/components/ModalPreciosMateriales';
 import MetricasHoy from '../components/MetricasHoy';
 import ModalEstadisticasDestacadas from '../components/ModalEstadisticasDestacadas';
-import ModalGestionProductos from '../components/ModalGestionProductos';
+import ModalGestionProductos from '../productos/components/ModalGestionProductos';
 import HeaderIntegrado from '../components/HeaderIntegrado';
 import { useProductos } from '../productos/hooks/useProductos';
 import { useEmpresa } from '../../context/EmpresaContext';

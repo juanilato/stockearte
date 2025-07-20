@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import FloatingLabelInput from '../../../components/FloatingLabel';
+import FloatingLabelInput from '../../components/FloatingLabel';
 import { Material } from '../../../services/api';
 import { colors } from '../../../styles/theme';
 

@@ -7,6 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
+  loginWithSocial: (credentials: import('../services/auth').SocialLoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -68,6 +69,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Login social (Google, Apple, etc)
+  const loginWithSocial = async (credentials: import('../services/auth').SocialLoginCredentials) => {
+    try {
+      const response = await authService.socialLogin(credentials);
+      setUser(response.user);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   // log-out
   const logout = async () => {
     try {
@@ -88,6 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: !!user,
     login,
     register,
+    loginWithSocial,
     logout,
     checkAuth,
   };

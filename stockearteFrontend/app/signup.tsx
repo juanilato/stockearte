@@ -12,9 +12,11 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import FloatingLabelInput from '../components/FloatingLabelLogin';
+import FloatingLabelInput from '../app/components/FloatingLabel';
 import { colors } from '../styles/theme';
 import { useAuth } from '../context/AuthContext';
+import { useSocialAuth } from '../hooks/useSocialAuth';
+import { SocialAuthButton } from './components/SocialAuthButton';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,6 +29,8 @@ export default function SignUpScreen() {
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+
+  const { googlePromptAsync, googleRequest, signInWithApple, loading: socialLoading, error: socialError } = useSocialAuth();
 
   const onSignUpPress = async () => {
     if (!emailAddress || !password || !confirmPassword) {
@@ -129,29 +133,26 @@ export default function SignUpScreen() {
                 {loading ? 'Creando cuenta...' : 'Registrarse'}
               </Text>
             </TouchableOpacity>
-            
-            {/* Social Icons */}
+            {/* Social Signup */}
             <View style={styles.iconRow}>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={() => handleSocialSignup('google')}
-                disabled={loading}
-                activeOpacity={0.7}
-              >
-                <AntDesign name="google" size={22} color="#EA4335" />
-              </TouchableOpacity>
+              <SocialAuthButton
+                provider="google"
+                onPress={() => googlePromptAsync()}
+                loading={socialLoading}
+                text="Registrarse con Google"
+              />
               {Platform.OS === 'ios' && (
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={() => handleSocialSignup('apple')}
-                  disabled={loading}
-                  activeOpacity={0.7}
-                >
-                  <FontAwesome name="apple" size={22} color="#1e293b" />
-                </TouchableOpacity>
+                <SocialAuthButton
+                  provider="apple"
+                  onPress={signInWithApple}
+                  loading={socialLoading}
+                  text="Registrarse con Apple"
+                />
               )}
             </View>
-            
+            {socialError ? (
+              <Text style={{ color: '#ef4444', marginTop: 8, textAlign: 'center' }}>{socialError}</Text>
+            ) : null}
             <Link href="/login" asChild>
               <Pressable style={styles.footerLink}>
                 <Text style={styles.footerText}>

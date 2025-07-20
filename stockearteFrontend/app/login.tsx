@@ -12,8 +12,10 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import FloatingLabelInput from '../components/FloatingLabelLogin';
+import FloatingLabelInput from '../app/components/FloatingLabel';
 import { useBiometricAuth } from '../hooks/useBiometricAuth';
+import { useSocialAuth } from '../hooks/useSocialAuth';
+import { SocialAuthButton } from './components/SocialAuthButton';
 import { colors } from '../styles/theme';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,6 +30,7 @@ export default function SignInScreen() {
   // hook para manejar la navegación
   const router = useRouter();
 
+  const { googlePromptAsync, googleRequest, signInWithApple, loading: socialLoading, error: socialError } = useSocialAuth();
   // Estados del login, (email, password, loading, error)
   const [emailAddress, setEmailAddress] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -153,23 +156,19 @@ export default function SignInScreen() {
 
             {/* Social & Biometric Icons */}
             <View style={styles.iconRow}>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={() => handleSocialLogin('google')}
-                disabled={loading}
-                activeOpacity={0.7}
-              >
-                <AntDesign name="google" size={22} color="#EA4335" />
-              </TouchableOpacity>
+              <SocialAuthButton
+                provider="google"
+                onPress={() => googlePromptAsync()}
+                loading={socialLoading}
+                text="Entrar con Google"
+              />
               {Platform.OS === 'ios' && (
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={() => handleSocialLogin('apple')}
-                  disabled={loading}
-                  activeOpacity={0.7}
-                >
-                  <FontAwesome name="apple" size={22} color="#1e293b" />
-                </TouchableOpacity>
+                <SocialAuthButton
+                  provider="apple"
+                  onPress={signInWithApple}
+                  loading={socialLoading}
+                  text="Entrar con Apple"
+                />
               )}
               <TouchableOpacity
                 style={styles.iconButton}
@@ -180,7 +179,9 @@ export default function SignInScreen() {
                 <Ionicons name="finger-print" size={22} color={colors.primary} />
               </TouchableOpacity>
             </View>
-
+            {socialError ? (
+              <Text style={{ color: '#ef4444', marginTop: 8, textAlign: 'center' }}>{socialError}</Text>
+            ) : null}
             <Link href="/signup" asChild>
               <Pressable style={styles.footerLink}>
                 <Text style={styles.footerText}>

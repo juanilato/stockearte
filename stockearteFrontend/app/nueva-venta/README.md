@@ -1,116 +1,44 @@
-# Módulo de Nueva Venta
+# Nueva Venta - View
 
-Este módulo maneja la funcionalidad de creación de ventas con un diseño moderno y funcionalidad mejorada.
+Este módulo permite registrar nuevas ventas de manera rápida y eficiente, integrando escaneo de productos, selección de variantes, manejo de cantidades, integración con MercadoPago y feedback visual/sonoro.
 
-## Características Principales
+## Estructura General
+- **Archivo principal:** `main.tsx`
+- **Componentes:**
+  - `VentasHeader`: Header de la sección de ventas.
+  - `ProductosDisponibles`: Lista de productos para seleccionar.
+  - `ProductosSeleccionados`: Lista de productos agregados a la venta.
+  - `ModalCantidad`: Selección de cantidad para un producto.
+  - `ModalVariante`: Selección de variante de producto.
+  - `ScannerModal`: Escaneo de códigos de barras.
+  - `ModalApiKeyMercadoPago`: Configuración de la API Key de MercadoPago.
+  - `ModalInterpretacionVoz`: Interpretación de voz para agregar productos.
+  - `ModalTransferencia`, `ModalQRPago`: Métodos de pago.
+  - `IndicadorGrabacion`, `mensajeFlotante`, `animacionGuardado`: Feedback visual y sonoro.
+- **Hooks personalizados:**
+  - `useProductos`: Maneja la obtención y filtrado de productos.
+  - `useSeleccionados`: Maneja los productos seleccionados para la venta.
+  - `useMensajeFlotante`: Feedback visual.
+  - `useSonidos`: Feedback sonoro.
+  - `useAnimacionGuardado`: Animación al guardar la venta.
 
-### 🎨 Diseño Moderno
-- **Header elegante** con gradiente oscuro y sombras
-- **Cards modernas** con bordes redondeados y efectos de elevación
-- **Colores consistentes** con la paleta de la aplicación
-- **Tipografía mejorada** con mejor jerarquía visual
+## Lógica Principal
+1. **Selección de productos:**
+   - Se pueden buscar, escanear o seleccionar productos manualmente.
+   - Se gestionan variantes y cantidades desde modales.
+2. **Registro de venta:**
+   - Al confirmar, se registra la venta en el backend y se muestra feedback visual/sonoro.
+   - Se puede elegir el método de pago (efectivo, QR, transferencia).
+3. **Integración con MercadoPago:**
+   - Permite registrar pagos con QR o transferencia usando la API Key configurada.
+4. **Feedback y accesibilidad:**
+   - Animaciones, sonidos y mensajes flotantes para mejorar la experiencia.
 
-### 📱 Scanner Funcional
-- **Scanner integrado** basado en el scanner de productos
-- **Escaneo múltiple** permite agregar varios productos sin cerrar
-- **Modal de cantidad** para especificar cantidad de cada producto
-- **Lista de productos escaneados** en tiempo real
-- **Toast notifications** para confirmar acciones
+## Extensión y Personalización
+- Puedes agregar nuevos métodos de pago, animaciones o integraciones fácilmente extendiendo los hooks y componentes existentes.
+- El diseño es mobile-first y pensado para uso rápido en punto de venta.
 
-### 🔧 Funcionalidades Mejoradas
+## Dependencias
+- React Native, Expo Camera, Expo AV, Hooks personalizados, componentes propios del proyecto.
 
-#### Scanner Modal
-- Escaneo de códigos EAN13
-- Animaciones de confirmación
-- Modal de cantidad con controles +/-
-- Lista de productos escaneados
-- Soporte para productos no registrados
-- Toast notifications
-
-#### Productos Disponibles
-- Grid de 2 columnas para mejor visualización
-- Iconos para indicar variantes vs stock
-- Botón de agregar en cada producto
-- Estados vacíos informativos
-
-#### Productos Seleccionados
-- Lista de productos con controles de cantidad
-- Totales destacados (Total y Ganancia)
-- Botones de acción modernos
-- Estados vacíos con iconos
-
-#### Acciones de Venta
-- Botones con texto e iconos
-- Estados deshabilitados
-- Efectos de sombra y elevación
-- Colores distintivos para cada acción
-
-## Estructura de Componentes
-
-```
-app/nueva-venta/
-├── main.tsx                    # Vista principal modernizada
-├── components/
-│   ├── scannerModal.tsx        # Scanner funcional para ventas
-│   ├── productosDisponibles.tsx # Grid de productos disponibles
-│   ├── productosSeleccionados.tsx # Lista de productos seleccionados
-│   ├── accionesVenta.tsx       # Botones de acción
-│   ├── modalCantidad.tsx       # Modal para especificar cantidad
-│   ├── modalQRPago.tsx         # Modal de QR de pago
-│   ├── modalTransferencia.tsx  # Modal de transferencia
-│   └── modalVariante.tsx       # Modal de selección de variantes
-└── hooks/                      # Hooks personalizados
-```
-
-## Mejoras Implementadas
-
-### 1. Scanner Funcional
-- ✅ Scanner que permite múltiples escaneos
-- ✅ Modal de cantidad integrado
-- ✅ Lista de productos escaneados
-- ✅ Toast notifications
-- ✅ Mismo estilo que el scanner de productos
-
-### 2. Interfaz Moderna
-- ✅ Header con diseño moderno
-- ✅ Cards con sombras y bordes redondeados
-- ✅ Colores consistentes y profesionales
-- ✅ Tipografía mejorada
-- ✅ Estados vacíos informativos
-
-### 3. Experiencia de Usuario
-- ✅ Animaciones suaves
-- ✅ Feedback visual inmediato
-- ✅ Controles intuitivos
-- ✅ Estados de carga mejorados
-- ✅ Mensajes informativos
-
-## Uso del Scanner
-
-```typescript
-// Abrir scanner
-setScannerVisible(true);
-
-// El scanner maneja automáticamente:
-// - Escaneo de códigos
-// - Búsqueda de productos
-// - Modal de cantidad
-// - Agregado a la lista
-// - Toast notifications
-```
-
-## Colores Utilizados
-
-- **Primary**: `#3b82f6` (Azul)
-- **Success**: `#10b981` (Verde)
-- **Background**: `#f8fafc` (Gris claro)
-- **Cards**: `#ffffff` (Blanco)
-- **Text**: `#1e293b` (Gris oscuro)
-- **Border**: `#e2e8f0` (Gris medio)
-
-## Responsive Design
-
-- Diseño adaptativo para diferentes tamaños de pantalla
-- Grid responsivo para productos
-- Espaciado consistente
-- Tipografía escalable 
+--- 
